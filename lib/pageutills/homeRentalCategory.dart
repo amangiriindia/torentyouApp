@@ -30,6 +30,7 @@ class _RentalCategoryState extends State<RentalCategory> {
           setState(() {
             categories = List<Map<String, dynamic>>.from(data['results'].map((category) {
               return {
+                'id': category['id'] ?? 0, // Capture the category ID
                 'name': category['c_name'],
                 'image': category['image'],
               };
@@ -77,7 +78,7 @@ class _RentalCategoryState extends State<RentalCategory> {
                     MaterialPageRoute(
                       builder: (context) => CategoryWise(
                         categoryName: category['name'],
-                        categoryId: 7,
+                        categoryId: category['id'] , // Pass the dynamic ID here
                       ),
                     ),
                   );
@@ -85,33 +86,33 @@ class _RentalCategoryState extends State<RentalCategory> {
                 child: Padding(
                   padding: const EdgeInsets.only(left: 20.0),
                   child: Column(
-                    children: [Container(
-                      padding: const EdgeInsets.all(5.0), // Adding padding for white background
-                      decoration: BoxDecoration(
-                        color: Colors.white, // White background
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.3),
-                            spreadRadius: 1,
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Container(
-                        height: 60, // Adjusted to fit inside the padding
-                        width: 60,  // Adjusted to fit inside the padding
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(5.0), // Adding padding for white background
                         decoration: BoxDecoration(
+                          color: Colors.white, // White background
                           shape: BoxShape.circle,
-                          image: DecorationImage(
-                            image: NetworkImage(category['image']),
-                            fit: BoxFit.cover,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.3),
+                              spreadRadius: 1,
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Container(
+                          height: 60, // Adjusted to fit inside the padding
+                          width: 60,  // Adjusted to fit inside the padding
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            image: DecorationImage(
+                              image: NetworkImage(category['image']),
+                              fit: BoxFit.cover,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-
                       const SizedBox(height: 8),
                       Text(
                         category['name'],

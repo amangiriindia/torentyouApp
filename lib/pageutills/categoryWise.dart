@@ -79,7 +79,7 @@ class _CategoryWiseState extends State<CategoryWise> {
           ),
         ),
         flexibleSpace: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             gradient: LinearGradient(
               colors: [
                 AppColors.primaryColor,
@@ -89,56 +89,57 @@ class _CategoryWiseState extends State<CategoryWise> {
           ),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10),
-        child: isLoading
-            ? Center(child: CircularProgressIndicator())
-            : products.isNotEmpty
-            ? GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            childAspectRatio: 0.6,
-            mainAxisSpacing: 15.0, // Space between rows
-          ),
-          itemCount: products.length,
-          itemBuilder: (BuildContext context, int index) {
-            final product = products[index];
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10),
+          child: products.isNotEmpty
+              ? GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              childAspectRatio: 0.6,
+              mainAxisSpacing: 15.0, // Space between rows
+            ),
+            itemCount: products.length,
+            itemBuilder: (BuildContext context, int index) {
+              final product = products[index];
 
-            final String title = product['product_name'] ?? 'Unknown';
-            final String imageUrl = product['image'] ?? '';
-            final String price =
-                "${product['monthly_rental']}/Month" ?? 'N/A';
-            final String category = widget.categoryName;
-            final int productId = product['id']; // Get product ID
+              final String title = product['product_name'] ?? 'Unknown';
+              final String imageUrl = product['image'] ?? '';
+              final String price = "${product['monthly_rental']}/Month" ?? 'N/A';
+              final String category = widget.categoryName;
+              final int productId = product['id']; // Get product ID
 
-            return ProductCard(
-              title: title,
-              imageUrl: imageUrl,
-              price: price,
-              category: category,
-              onRentNow: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ProductDetailsPage(
-                      productId: productId,
-                      categoryId: product['category_id'],
-                      subcategoryId: product['subcategory'],
+              return ProductCard(
+                title: title,
+                imageUrl: imageUrl,
+                price: price,
+                category: category,
+                onRentNow: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ProductDetailsPage(
+                        productId: productId,
+                        categoryId: product['category_id'],
+                        subcategoryId: product['subcategory'],
+                      ),
                     ),
-                  ),
-                );
-              },
-            );
-          },
-        )
-            : const Center(
-          child: Text(
-            'No products available in this category.',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
+                  );
+                },
+              );
+            },
+          )
+              : const Center(
+            child: Text(
+              'No products available in this category.',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ),

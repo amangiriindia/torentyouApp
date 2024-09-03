@@ -2,8 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:line_icons/line_icons.dart';
 
+import '../components/sideDrawer.dart';
 import '../consts.dart';
-import '../pageutills/categoryWise.dart';
 import 'HomePage.dart';
 import 'NotificationsPage.dart';
 import 'PostAdsPage.dart';
@@ -26,35 +26,7 @@ class _MyHomePageState extends State<MyHomePage> {
     const NotificationsPage(),
   ];
 
-  final List<Map<String, dynamic>> drawerItems = [
-    {"title": "Property", "icon": Icons.home},
-    {"title": "Vehicle", "icon": Icons.directions_car},
-    {"title": "Furniture", "icon": Icons.chair},
-    {"title": "Appliances", "icon": Icons.kitchen},
-    {"title": "Hotels", "icon": Icons.hotel},
-    {"title": "Home Stay", "icon": Icons.house},
-    {"title": "Clothes", "icon": Icons.checkroom},
-    {"title": "Yachts and Helicopters", "icon": Icons.airplanemode_active},
-    {"title": "Tools", "icon": Icons.build},
-  ];
 
-  final TextStyle itemTextStyle = const TextStyle(
-    fontWeight: FontWeight.w500,
-    color: AppColors.primaryTextColor,
-    fontSize: 18,
-    letterSpacing: 1,
-  );
-
-  void _onDrawerItemTap(int index) {
-    String selectedCategory = drawerItems[index]["title"];
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => CategoryWise(categoryName: selectedCategory, categoryId: 7,), // Navigate to CategoryPage with category name
-      ),
-    );
-    _scaffoldKey.currentState?.closeDrawer(); // Close the drawer
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -118,23 +90,7 @@ class _MyHomePageState extends State<MyHomePage> {
           }),
         ),
       ),
-      drawer: Drawer(
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: drawerItems.map((item) {
-                return ListTile(
-                  leading: Icon(item["icon"] as IconData, color: Colors.black),
-                  title: Text(item["title"] as String, style: itemTextStyle),
-                  onTap: () => _onDrawerItemTap(drawerItems.indexOf(item)),
-                );
-              }).toList(),
-            ),
-          ),
-        ),
-      ),
+      drawer: SideDrawer(scaffoldKey: _scaffoldKey),
       body: _pages[_selectedIndex],
     );
   }
