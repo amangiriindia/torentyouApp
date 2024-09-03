@@ -1,28 +1,65 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
 import 'package:share_plus/share_plus.dart';
-
 import '../components/Button.dart';
 import '../consts.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class ProductDetailsPage extends StatefulWidget {
   final int productId;
-  final Map<String, dynamic> product;
   final int categoryId;
   final int subcategoryId;
 
-  const ProductDetailsPage({super.key, required this.productId, required this.product, required this.categoryId, required this.subcategoryId});
+  const ProductDetailsPage({
+    Key? key,
+    required this.productId,
+    required this.categoryId,
+    required this.subcategoryId,
+  }) : super(key: key);
 
   @override
   _ProductDetailsPageState createState() => _ProductDetailsPageState();
 }
 
 class _ProductDetailsPageState extends State<ProductDetailsPage> {
+  Map<String, dynamic>? product;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchProductDetails();
+  }
+
+  Future<void> fetchProductDetails() async {
+    final url = '${AppConstant.API_URL}api/v1/product/single-product/${widget.productId}';
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        setState(() {
+          product = data;
+          isLoading = false;
+        });
+      } else {
+        // Handle the error
+        setState(() {
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      // Handle the error
+      setState(() {
+        isLoading = false;
+      });
+      print('Error: $e');
+    }
+  }
+
   void _shareProduct() async {
-    final subject = 'Check out this ${widget.product['category']} on TorentYou!';
-    final text = '${widget.product['title']} - ${widget.product['description']}';
-    final imageUrl = widget.product['imageUrl']; // Get the image URL
+    final subject = 'Check out this ${product?['product_name']} on TorentYou!';
+    final text = '${product?['short_description']} - ${product?['description']}';
+    final imageUrl = product?['image']; // Get the image URL
 
     try {
       await Share.share(
@@ -38,6 +75,30 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return Scaffold(
+        appBar: AppBar(
+          centerTitle: true,
+          title: const Padding(
+            padding: EdgeInsets.all(20.0),
+            child: Image(
+              image: AssetImage('assets/logo.png'),  // Replace with your logo file path
+              width: 110,  // Adjust size as needed
+              height: 110,
+            ),
+          ),
+          bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(5.0),
+            child: Container(
+              height: 1.0,
+              color: AppColors.dividerColor.withOpacity(0.5),
+            ),
+          ),
+        ),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -65,7 +126,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
               child: Image.network(
-                widget.product['imageUrl'] ?? '', // Default empty image URL
+                product?['image'] ?? '', // Default empty image URL
                 height: 250,
                 width: double.infinity,
                 fit: BoxFit.cover,
@@ -77,14 +138,40 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
             ),
             const SizedBox(height: 16),
             Text(
-              widget.product['title'] ?? 'No Title',
+              product?['product_name'] ?? 'No Title',
               style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w600, letterSpacing: 1),
             ),
             const SizedBox(height: 30),
-            Text(
-              '${widget.product['category'] ?? 'N/A'}', // 'N/A' if price is null
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500, color: Colors.grey.shade700),
+            Row(
+              children: [
+
+                Text(
+                  '₹${product?['monthly_rental'] ?? 'N/A'}/Month',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500, color: Colors.grey.shade700),
+                ),
+
+                const SizedBox(width: 18), // Space between icon and text
+                Text(
+                  'Deposit: ₹${product?['deposit'] ?? 'N/A'}',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500, color: Colors.grey.shade700),
+                ),
+              ],
             ),
+
+            const SizedBox(height: 16), // Space between rows
+            Row(
+              children: [
+                const Icon(Icons.location_on, color: Colors.grey), // Location icon
+                const SizedBox(width: 8), // Space between icon and text
+                Expanded(
+                  child: Text(
+                    product?['location'] ?? 'No Location Available',
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                ),
+              ],
+            ),
+
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 20.0),
               child: SizedBox(
@@ -95,9 +182,24 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
               ),
             ),
             Text(
-              widget.product['description'] ?? 'No Description Available',
+              product?['short_description'] ?? 'No Description Available',
               style: const TextStyle(fontSize: 16),
             ),
+
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20.0),
+              child: SizedBox(
+                child: Container(
+                  height: 0.7,
+                  color: Colors.grey.shade400,
+                ),
+              ),
+            ),
+            Text(
+              product?['description'] ?? 'No Description Available',
+              style: const TextStyle(fontSize: 16),
+            ),
+
             Padding(
               padding: const EdgeInsets.only(top: 20.0),
               child: SizedBox(

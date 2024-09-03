@@ -50,7 +50,7 @@ class _MyHomePageState extends State<MyHomePage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => CategoryWise(categoryName: selectedCategory), // Navigate to CategoryPage with category name
+        builder: (context) => CategoryWise(categoryName: selectedCategory, categoryId: 7,), // Navigate to CategoryPage with category name
       ),
     );
     _scaffoldKey.currentState?.closeDrawer(); // Close the drawer

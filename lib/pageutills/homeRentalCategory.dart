@@ -77,6 +77,7 @@ class _RentalCategoryState extends State<RentalCategory> {
                     MaterialPageRoute(
                       builder: (context) => CategoryWise(
                         categoryName: category['name'],
+                        categoryId: 7,
                       ),
                     ),
                   );

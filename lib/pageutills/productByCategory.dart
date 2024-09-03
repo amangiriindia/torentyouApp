@@ -100,7 +100,7 @@ class _ProductByCategoryState extends State<ProductByCategory> {
                     context,
                     MaterialPageRoute(
                       builder: (context) => CategoryWise(
-                        categoryName: widget.categoryName,
+                        categoryName: widget.categoryName, categoryId: widget.categoryId.toInt(),
                       ),
                     ),
                   );
@@ -153,16 +153,16 @@ class _ProductByCategoryState extends State<ProductByCategory> {
                 price: price,
                 category: category,
                 onRentNow: () {
-                  // Navigator.push(
-                  //   context,
-                  //   MaterialPageRoute(
-                  //     builder: (context) => ProductDetailsPage(
-                  //       productId: productId,
-                  //       categoryId: product['category_id'],
-                  //       subcategoryId: product['subcategory'],
-                  //     ),
-                  //   ),
-                  // );
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ProductDetailsPage(
+                        productId: productId,
+                        categoryId: product['category_id'],
+                        subcategoryId: product['subcategory'],
+                      ),
+                    ),
+                  );
                 },
               );
             },
