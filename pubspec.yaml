@@ -1,0 +1,48 @@
+name: try_test
+description: "A new Flutter project."
+
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.4.4 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  smooth_page_indicator: ^1.1.0
+  lottie: ^3.0.0 # Downgraded version
+  share_plus: ^4.0.0
+  shared_preferences: ^2.2.3
+  carousel_slider: ^4.2.1
+  line_icons: ^2.0.3
+  image_picker: ^0.8.4+3
+  google_fonts: ^6.2.1 # Updated version
+  font_awesome_flutter: ^10.2.1
+  flutter_rating_bar: 4.0.1
+
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+  flutter_launcher_icons: ^0.13.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/logo.png
+    - assets/sofacumbed.png
+    - assets/page1.gif
+
+
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: assets/logo.png
+  #  android_adaptive_icon_background: ffffff # Optional: Set background color for adaptive icons
+  android_adaptive_icon_foreground: assets/logo.png # Optional: Set foreground for adaptive icons
