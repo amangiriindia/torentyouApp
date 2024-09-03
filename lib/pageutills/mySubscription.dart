@@ -1,39 +1,65 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import '../consts.dart';
-
-class MySubscriptionPage extends StatelessWidget {
+class MySubscriptionPage extends StatefulWidget {
   const MySubscriptionPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final List<Map<String, String?>> subscriptions = [
-      {
-        'planName': 'Basic',
-        'price': '₹1 /-',
-        'duration': '3 Months',
-        'totalAds': '1',
-        'usedAds': '0',
-        'availableAds': '1',
-        'startDate': '2024-08-12',
-        'expiry': '2024-11-12',
-        'status': 'Active',
-      },
-      {
-        'planName': 'Premium',
-        'price': '₹3999 /-',
-        'duration': '6 Months',
-        'totalAds': '30',
-        'usedAds': '5',
-        'availableAds': '25',
-        'startDate': '2023-08-12',
-        'expiry': '2024-02-12',
-        'status': 'Expired',
-      },
-      // Add more subscriptions here if needed
-    ];
+  _MySubscriptionPageState createState() => _MySubscriptionPageState();
+}
 
+class _MySubscriptionPageState extends State<MySubscriptionPage> {
+  List<Map<String, dynamic>> subscriptions = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchSubscriptions();
+  }
+
+  Future<void> fetchSubscriptions() async {
+    const String url =
+        '${AppConstant.API_URL}api/v1/usersubscription/single-user-subscription/1';
+
+    try {
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final List<dynamic> responseData = json.decode(response.body);
+
+        setState(() {
+          subscriptions = responseData.map((data) {
+            final jsonData = json.decode(data['json_data']);
+            return {
+              'planName': jsonData['description'] ?? 'N/A',
+              'price': '₹${data['price']} /-',
+              'duration': '${jsonData['duration']} Months',
+              'totalAds': data['total_ads'].toString(),
+              'usedAds': data['used_ads'].toString(),
+              'availableAds': data['balance_ads'].toString(),
+              'startDate': data['subscription_date'],
+              'expiry': data['expiry_date'],
+              'status': data['status'] == 'Approved' ? 'Active' : 'Expired',
+            };
+          }).toList();
+          isLoading = false;
+        });
+      } else {
+        throw Exception('Failed to load subscriptions');
+      }
+    } catch (e) {
+      print('Error fetching subscriptions: $e');
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Subscriptions'),
@@ -41,14 +67,16 @@ class MySubscriptionPage extends StatelessWidget {
           decoration: const BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppColors.primaryTextColor,
                 AppColors.primaryColor,
+                AppColors.primaryTextColor,
               ],
             ),
           ),
         ),
       ),
-      body: Padding(
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Padding(
         padding: const EdgeInsets.all(20.0),
         child: ListView.builder(
           itemCount: subscriptions.length,

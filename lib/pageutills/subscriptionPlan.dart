@@ -1,22 +1,62 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import '../consts.dart';
 
-class SubscriptionPlanPage extends StatelessWidget {
+class SubscriptionPlanPage extends StatefulWidget {
   const SubscriptionPlanPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final List<Map<String, String>> subscriptions = [
-      {'duration': '3 Months', 'price': '₹1 /-', 'ads': '1', 'description': 'Basic'},
-      {'duration': '3 Months', 'price': '₹3999 /-', 'ads': '30', 'description': 'Standard'},
-      {'duration': '3 Months', 'price': '₹9999 /-', 'ads': '90', 'description': 'Super'},
-      {'duration': '6 Months', 'price': '₹15999 /-', 'ads': '150', 'description': 'Premium'},
-      {'duration': '6 Months', 'price': '₹19999 /-', 'ads': '200', 'description': 'Platinum'},
-      {'duration': '6 Months', 'price': '₹39999 /-', 'ads': '500', 'description': 'Blockbuster'},
-      {'duration': '12 Months', 'price': '₹69999 /-', 'ads': '1000', 'description': 'Platinum'},
-    ];
+  _SubscriptionPlanPageState createState() => _SubscriptionPlanPageState();
+}
 
+class _SubscriptionPlanPageState extends State<SubscriptionPlanPage> {
+  List<Map<String, dynamic>> subscriptions = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchSubscriptions();
+  }
+
+  Future<void> fetchSubscriptions() async {
+    final url = '${AppConstant.API_URL}api/v1/subscription/all-subscription';
+
+    try {
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['success']) {
+          setState(() {
+            subscriptions = List<Map<String, dynamic>>.from(data['results']);
+            isLoading = false;
+          });
+        } else {
+          // Handle API error
+          setState(() {
+            isLoading = false;
+          });
+        }
+      } else {
+        // Handle network error
+        setState(() {
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      // Handle general error
+      setState(() {
+        isLoading = false;
+      });
+      print('Error fetching subscriptions: $e');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Subscription Plan'),
@@ -33,7 +73,9 @@ class SubscriptionPlanPage extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
-        child: ListView.builder(
+        child: isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : ListView.builder(
           itemCount: subscriptions.length,
           itemBuilder: (context, index) {
             final plan = subscriptions[index];
@@ -52,7 +94,7 @@ class SubscriptionPlanPage extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          plan['description']!,
+                          plan['description'] ?? 'Unknown',
                           style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -68,7 +110,7 @@ class SubscriptionPlanPage extends StatelessWidget {
                             ),
                             const SizedBox(width: 5),
                             Text(
-                              plan['duration']!,
+                              '${plan['duration']} Months',
                               style: const TextStyle(color: Colors.grey),
                             ),
                           ],
@@ -83,7 +125,7 @@ class SubscriptionPlanPage extends StatelessWidget {
                             ),
                             const SizedBox(width: 5),
                             Text(
-                              "${plan['ads']} Ads",
+                              "${plan['total_product']} Ads",
                               style: const TextStyle(color: Colors.grey),
                             ),
                           ],
@@ -94,7 +136,7 @@ class SubscriptionPlanPage extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
-                          plan['price']!,
+                          '₹${plan['price']} /-',
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
