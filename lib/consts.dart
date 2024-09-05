@@ -29,7 +29,6 @@ class AppColors {
   static Color dividerColor = Colors.grey.shade900;
 }
 
-
 class AppConstant {
   static const String API_URL = 'http://192.168.1.39:8080/';
 }
