@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
+import '../chat/chat_screen.dart';
 import '../components/Button.dart';
 import '../consts.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+
+import 'ChatScreen.dart';
 
 class ProductDetailsPage extends StatefulWidget {
   final int productId;
@@ -235,15 +238,27 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
               ),
             ),
             ButtonCustom(
-              callback: () {},
+              callback: () {
+                // Navigate to the ChatPage when the button is clicked
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ChatPage(
+                      senderId: "randomSenderId123",    // Replace with actual senderId
+                      senderEmail: "sender@example.com", // Replace with actual senderEmail
+                      receiverUserEmail: "receiver@example.com", // Replace with actual receiverUserEmail
+                      receiverUserID: "randomReceiverId456",    // Replace with actual receiverUserID
+                    ),
+                  ),
+                );
+              },
               title: "Chat Now",
-              gradient: const LinearGradient(
-                colors: [
-                  AppColors.primaryColor,
-                  AppColors.primaryTextColor,
-                ],
-              ),
-            ),
+              gradient: const LinearGradient(colors: [
+                AppColors.primaryColor,
+                AppColors.primaryTextColor,
+              ]),
+            )
+
           ],
         ),
       ),
