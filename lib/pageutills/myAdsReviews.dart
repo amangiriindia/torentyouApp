@@ -1,9 +1,14 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import '../consts.dart';
+import 'package:http/http.dart' as http;
+
+import 'myAdsReviewByProduct.dart';
 
 // 1. Data Model for Review
 class Review {
+  final String id;
   final String productName;
   final String imageUrl;
   final double rating;
@@ -13,48 +18,17 @@ class Review {
   final String date;
 
   Review({
+    required this.id,
     required this.productName,
     required this.imageUrl,
     required this.rating,
-    required this.comment,
-    required this.userName,
-    required this.mobile,
-    required this.date,
+    this.comment = 'Great product!',
+    this.userName = 'Static User',
+    this.mobile = '7070099770',
+    this.date = '2024-08-12 21:03:10',
   });
 }
 
-// 2. Dummy Data List
-List<Review> reviews = [
-  Review(
-    productName: 'Test Product 1',
-    imageUrl: 'https://torentyou.com/admin/uploads/room.jpg',
-    rating: 4.5,
-    comment: 'Great product, really loved it!',
-    userName: 'Alice',
-    mobile: '7070099770',
-    date: '2024-08-12 21:03:10',
-  ),
-  Review(
-    productName: 'Test Product 2',
-    imageUrl: 'https://torentyou.com/admin/uploads/room.jpg',
-    rating: 3.5,
-    comment: 'Good quality, could be better.',
-    userName: 'Bob',
-    mobile: '7070099771',
-    date: '2024-08-11 19:22:30',
-  ),
-  Review(
-    productName: 'Test Product 3',
-    imageUrl: 'https://torentyou.com/admin/uploads/room.jpg',
-    rating: 5.0,
-    comment: 'Excellent product, highly recommend!',
-    userName: 'Charlie',
-    mobile: '7070099772',
-    date: '2024-08-10 14:15:20',
-  ),
-];
-
-// 3. MyReviewPage Widget
 class MyReviewPage extends StatefulWidget {
   const MyReviewPage({super.key});
 
@@ -63,7 +37,66 @@ class MyReviewPage extends StatefulWidget {
 }
 
 class _MyReviewPageState extends State<MyReviewPage> {
+  List<Review> myAds = [];
+  bool isLoading = true;
+  bool hasError = false;
 
+  @override
+  void initState() {
+    super.initState();
+    fetchMyAds();
+  }
+
+  Future<void> fetchMyAds() async {
+    try {
+      final response = await http.post(
+        Uri.parse('${AppConstant.API_URL}api/v1/product/user-myads-all-product'),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          "seller_id": 6,
+        }),
+      );
+      print(response.body);
+      print(response.statusCode);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        // Check if the API returned a success and if the results are not null or empty
+        if (data['success'] && data['results'] != null) {
+          setState(() {
+            myAds = (data['results'] as List).map((item) {
+              // Handle missing or incorrect fields gracefully
+              return Review(
+                id: item['id'].toString(),
+                productName: item['product_name'] ?? 'Unnamed Product',
+                imageUrl: item['image'] ?? 'https://placeholder.com/500', // Use a placeholder if image is missing
+                rating: (item['rating_star'] ?? 0).toDouble(),
+              );
+            }).toList();
+            isLoading = false;
+            hasError = false; // Clear any previous errors
+          });
+        } else {
+          setState(() {
+            hasError = true;
+            isLoading = false;
+          });
+        }
+      } else {
+        setState(() {
+          hasError = true;
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      print('Error: $e');
+      setState(() {
+        hasError = true;
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,110 +106,131 @@ class _MyReviewPageState extends State<MyReviewPage> {
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
-              colors: [AppColors.primaryColor,AppColors.primaryTextColor ],
+              colors: [AppColors.primaryColor, AppColors.primaryTextColor],
             ),
           ),
         ),
       ),
       backgroundColor: Colors.white,
-      body: ListView.builder(
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : hasError
+          ? const Center(child: Text('Error fetching data'))
+          : ListView.builder(
         padding: const EdgeInsets.all(20.0),
-        itemCount: reviews.length,
+        itemCount: myAds.length,
         itemBuilder: (context, index) {
-          final review = reviews[index];
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 20.0),
-            child: Card(
-              elevation: 6,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: double.infinity,
-                    height: 200,
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image: NetworkImage(review.imageUrl),
-                        fit: BoxFit.cover,
+          final review = myAds[index];
+          return GestureDetector(
+            onTap: () {
+              // Navigate to the AdsReviewByProduct page with the required data
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AdsReviewByProduct(
+                    productId: review.id,
+                    imageUrl: review.imageUrl,
+                    productName: review.productName,
+                  ),
+                ),
+              );
+            },
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 20.0),
+              child: Card(
+                elevation: 6,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      height: 200,
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                          image: NetworkImage(review.imageUrl),
+                          fit: BoxFit.cover,
+                        ),
+                        borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(15)),
                       ),
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          review.productName,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                            color: AppColors.primaryTextColor,
-                          ),
-                        ),
-                        const SizedBox(height: 5),
-                        Row(
-                          children: [
-                            RatingBar.builder(
-                              initialRating: review.rating,
-                              minRating: 1,
-                              itemCount: 5,
-                              itemBuilder: (context, index) {
-                                return const Icon(
-                                  Icons.star,
-                                  color: Colors.amber,
-                                );
-                              },
-                              ignoreGestures: true,
-                              onRatingUpdate: (rating) {},
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            review.productName,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                              color: AppColors.primaryTextColor,
                             ),
-                          ],
-                        ),
-                        const SizedBox(height: 5),
-                        Text(
-                          review.comment,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey[700],
                           ),
-                        ),
-                        const Divider(thickness: 1, height: 20),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Name: ${review.userName}',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[800],
+                          const SizedBox(height: 5),
+                          Row(
+                            children: [
+                              RatingBar.builder(
+                                initialRating: review.rating,
+                                minRating: 1,
+                                itemCount: 5,
+                                itemBuilder: (context, index) {
+                                  return const Icon(
+                                    Icons.star,
+                                    color: Colors.amber,
+                                  );
+                                },
+                                ignoreGestures: true,
+                                onRatingUpdate: (rating) {},
                               ),
-                            ),
-                            Text(
-                              'Mobile: ${review.mobile}',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[800],
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 5),
-                        Text(
-                          'Date: ${review.date}',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey[600],
+                            ],
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 5),
+                          Text(
+                            review.comment,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[700],
+                            ),
+                          ),
+                          const Divider(thickness: 1, height: 20),
+                          Row(
+                            mainAxisAlignment:
+                            MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Name: ${review.userName}',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey[800],
+                                ),
+                              ),
+                              Text(
+                                'Mobile: ${review.mobile}',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey[800],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 5),
+                          Text(
+                            'Date: ${review.date}',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           );

@@ -1,11 +1,66 @@
+import 'dart:convert'; // For decoding JSON response
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart'; // Import Google Fonts package
-import '../consts.dart'; // Make sure this file has your color definitions
+import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
+import '../consts.dart'; // Assuming your color definitions are here
 import '../pages/PostAdsPage.dart';
 import '../pages/Postadswithnavbar.dart';
 
-class MyAdsPage extends StatelessWidget {
+class MyAdsPage extends StatefulWidget {
   const MyAdsPage({super.key});
+
+  @override
+  _MyAdsPageState createState() => _MyAdsPageState();
+}
+
+class _MyAdsPageState extends State<MyAdsPage> {
+  List<dynamic> myAds = []; // This will store the list of ads
+  bool isLoading = true; // Show loading indicator initially
+  bool hasError = false; // Error handling flag
+
+  @override
+  void initState() {
+    super.initState();
+    fetchMyAds(); // Fetch ads when the widget initializes
+  }
+
+  // Function to fetch ads from the API
+  Future<void> fetchMyAds() async {
+    try {
+      final response = await http.post(
+        Uri.parse('${AppConstant.API_URL}api/v1/product/user-myads-all-product'),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          "seller_id": 6, // Assuming seller_id is hardcoded, you can replace it with dynamic data if needed
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['success']) {
+          setState(() {
+            myAds = data['results']; // Store ads in myAds list
+            isLoading = false;
+          });
+        } else {
+          setState(() {
+            hasError = true; // Show error if API call fails
+            isLoading = false;
+          });
+        }
+      } else {
+        setState(() {
+          hasError = true; // Show error if API call fails
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        hasError = true; // Show error on exception
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +72,7 @@ class MyAdsPage extends StatelessWidget {
             fontFamily: 'Poppins',
             fontSize: 22.49,
             fontWeight: FontWeight.w500,
-            height: 18.74 / 12.49, // This sets line height based on fontSize
+            height: 18.74 / 12.49, // Line height based on font size
             color: Colors.black,
           ),
         ),
@@ -32,51 +87,35 @@ class MyAdsPage extends StatelessWidget {
           ),
         ),
       ),
-      body: Container(
-        color: Colors.white, // Background color of the page
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator()) // Show loading spinner
+          : hasError
+          ? const Center(child: Text('Error loading ads')) // Error message
+          : myAds.isEmpty
+          ? const Center(child: Text('No Ads Available')) // Empty state
+          : Container(
+        color: Colors.white,
         padding: const EdgeInsets.all(16.0),
-        child: ListView(
-          children: [
-            _buildAdCard(
-              context, // Pass context to _buildAdCard
-              imageUrl: 'https://torentyou.com/admin/uploads/SofacumBed6_90e7bdd9-77de-4704-a83b-d5c895c643ce_540x.png', // Online image URL
-              title: 'Beautiful Home Stay',
-              category: 'Home Stay',
-              monthlyRental: '2000 /-',
-              deposit: '6000 /-',
-              location: 'Lucknow',
-              package: 'Yes',
-              status: 'Active',
-              shortDescription: 'Cozy and spacious home stay in the heart of Lucknow. Ideal for families.',
-              description: 'Spacious home stay with modern amenities. Located in a prime area with easy access to local attractions. Ideal for families and groups. Features include comfortable furnishings, a well-equipped kitchen, and a beautiful garden.',
-            ),
-            _buildAdCard(
-              context, // Pass context to _buildAdCard
-              imageUrl: 'https://torentyou.com/admin/uploads/SofacumBed6_90e7bdd9-77de-4704-a83b-d5c895c643ce_540x.png',
-              title: 'Luxurious Apartment',
-              category: 'Apartment',
-              monthlyRental: '5000 /-',
-              deposit: '15000 /-',
-              location: 'Delhi',
-              package: 'No',
-              status: 'Available',
-              shortDescription: 'Modern apartment with stunning city views. Perfect for professionals.',
-              description: 'This modern apartment offers a luxurious living experience with breathtaking city views. It includes state-of-the-art amenities, a spacious living area, and is located in a prime neighborhood with easy access to all conveniences.',
-            ),
-            _buildAdCard(
-              context, // Pass context to _buildAdCard
-              imageUrl: 'https://torentyou.com/admin/uploads/SofacumBed6_90e7bdd9-77de-4704-a83b-d5c895c643ce_540x.png',
-              title: 'Charming Cottage',
-              category: 'Cottage',
-              monthlyRental: '3000 /-',
-              deposit: '9000 /-',
-              location: 'Shimla',
-              package: 'Yes',
-              status: 'Occupied',
-              shortDescription: 'A cozy cottage with a beautiful garden and serene environment.',
-              description: 'This charming cottage is nestled in a tranquil location, offering a serene escape from the hustle and bustle. It features a beautiful garden, comfortable living spaces, and is ideal for a relaxing retreat.',
-            ),
-          ],
+        child: ListView.builder(
+          itemCount: myAds.length,
+          itemBuilder: (context, index) {
+            final ad = myAds[index];
+            return _buildAdCard(
+              context,
+              imageUrl: ad['image'],
+              title: ad['product_name'],
+              // Replace with actual category name if available
+              monthlyRental: '${ad['monthly_rental']} /-',
+              deposit: '${ad['deposit']} /-',
+              location: ad['location'],
+              package: ad['package'].isEmpty ? 'No' : 'Yes',
+              status: ad['status'] == 1 ? 'Active' : 'Inactive',
+              shortDescription: ad['short_description'],
+              description: ad['description'].isEmpty
+                  ? 'No description available'
+                  : ad['description'],
+            );
+          },
         ),
       ),
     );
@@ -86,7 +125,6 @@ class MyAdsPage extends StatelessWidget {
       BuildContext context, {
         required String imageUrl,
         required String title,
-        required String category,
         required String monthlyRental,
         required String deposit,
         required String location,
@@ -127,7 +165,7 @@ class MyAdsPage extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const PostAdsWithNavPage(), // Navigate to PostAdsPage
+                        builder: (context) => const PostAdsWithNavPage(),
                       ),
                     );
                   },
@@ -152,8 +190,8 @@ class MyAdsPage extends StatelessWidget {
                 const SizedBox(height: 3),
                 // Information Section
                 Text(
-                  'Category: $category   Monthly Rental: $monthlyRental\n'
-                      'Location: $location   Deposit: $deposit\n'
+                  'Monthly Rental: $monthlyRental   Deposit: $deposit\n'
+                      'Location: $location   \n'
                       'Package: $package   Status: $status',
                   style: GoogleFonts.poppins(
                     fontSize: 13,
