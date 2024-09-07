@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../consts.dart';
 import '../main.dart';
 import 'mainPage.dart';
@@ -13,6 +16,40 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   bool _showOtpField = false;
   final _phoneNumberController = TextEditingController();
+  final String apiUrl = '${AppConstant.API_URL}api/v1/seller/single-seller/3';
+
+  Future<void> _getUserData() async {
+    try {
+      final response = await http.get(Uri.parse(apiUrl));
+      if (response.statusCode == 200) {
+        // Parse response
+        final data = jsonDecode(response.body);
+        final userId = data['id'];
+        final userName = data['name'];
+        final userPhone = data['contact'];
+        final userAbout = data['about'];
+        final userEmail = data['email'];
+        // Save data to SharedPreferences
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setInt('userId', userId);
+        await prefs.setString('userName', userName);
+        await prefs.setString('userPhone', userPhone);
+        await prefs.setString('userAbout', userAbout);
+        await prefs.setString('userEmail', userEmail);
+
+        // Navigate to the home page after successful data fetch
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const MyHomePage()),
+        );
+      } else {
+        // Handle errors
+        print('Failed to load user data. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching user data: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -92,7 +129,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
               child: ElevatedButton(
                 onPressed: () {
-                  // Implement OTP sending logic
+                  // Simulate OTP sending logic
                   setState(() {
                     _showOtpField = true;
                   });
@@ -111,7 +148,6 @@ class _LoginPageState extends State<LoginPage> {
                     color: Colors.white, // Make the text color white
                   ),
                 ),
-
               ),
             ),
             if (_showOtpField) ...[
@@ -153,11 +189,8 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 child: ElevatedButton(
                   onPressed: () {
-                    // Implement OTP verification logic
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => const MyHomePage()),
-                    );
+                    // Fetch user data from API
+                    _getUserData();
                   },
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
@@ -174,7 +207,6 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                 ),
-
               ),
             ],
           ],
