@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:try_test/pages/loginPage.dart';
 import 'package:try_test/pages/mainPage.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart'; // Make sure this file exists
+import 'package:try_test/payment/payment_test_scrren.dart';
+import 'firebase_options.dart';
+import 'pages/splashScreen.dart'; // Make sure this file exists
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Ensure Flutter bindings are initialized
@@ -19,7 +21,7 @@ class MyApp extends StatelessWidget{
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: LoginPage(),
+      home: SplashScreen(),
     );
   }
 }

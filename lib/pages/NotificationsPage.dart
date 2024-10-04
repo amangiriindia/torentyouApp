@@ -1,63 +1,75 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
-class NotificationsPage extends StatelessWidget {
+class NotificationsPage extends StatefulWidget {
   const NotificationsPage({super.key});
+
+  @override
+  _NotificationsPageState createState() => _NotificationsPageState();
+}
+
+class _NotificationsPageState extends State<NotificationsPage> {
+  late Future<List<Notification>> _notifications;
+  late int userId=0;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+    _notifications = fetchNotifications();
+  }
+  // Fetch user data from SharedPreferences
+  Future<void> _loadUserData() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+
+      userId = prefs.getInt('userId') ?? 0;
+    });
+  }
+  Future<List<Notification>> fetchNotifications() async {
+    final response = await http.get(Uri.parse('http://192.168.1.39:8080/api/v1/notification/user-all-notification/1'));
+
+    if (response.statusCode == 200) {
+      List<dynamic> data = json.decode(response.body);
+      return data.map((json) => Notification.fromJson(json)).toList();
+    } else {
+      throw Exception('Failed to load notifications');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      
-      body: Container(
-        color: Colors.white, // Set the background color of the page to white
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: ListView(
-            children: [
-              _buildNotificationCard(
-                context,
-                color: Colors.blueAccent,
-                icon: Icons.chat,
-                heading: 'New Message',
-                text: 'You have received a new message from John Doe.',
-              ),
-              _buildNotificationCard(
-                context,
-                color: Colors.greenAccent,
-                icon: Icons.check_circle,
-                heading: 'Post Successful',
-                text: 'Your post has been successfully published.',
-              ),
-              _buildNotificationCard(
-                context,
-                color: Colors.redAccent,
-                icon: Icons.error,
-                heading: 'Subscription Expired',
-                text: 'Your subscription has expired. Please renew it.',
-              ),
-              _buildNotificationCard(
-                context,
-                color: Colors.orangeAccent,
-                icon: Icons.info,
-                heading: 'System Update',
-                text: 'A new update is available for the app.',
-              ),
-              _buildNotificationCard(
-                context,
-                color: Colors.purpleAccent,
-                icon: Icons.star,
-                heading: 'Special Offer',
-                text: 'You have a special offer waiting for you!',
-              ),
-              _buildNotificationCard(
-                context,
-                color: Colors.cyanAccent,
-                icon: Icons.local_offer,
-                heading: 'Limited Time Deal',
-                text: 'Check out our limited-time deals available now.',
-              ),
-            ],
-          ),
-        ),
+      body: FutureBuilder<List<Notification>>(
+        future: _notifications,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text('No notifications available.'));
+          } else {
+            final notifications = snapshot.data!;
+
+            return ListView.builder(
+              padding: const EdgeInsets.all(16.0),
+              itemCount: notifications.length,
+              itemBuilder: (context, index) {
+                final notification = notifications[index];
+                return _buildNotificationCard(
+                  context,
+                  color: _getColorForType(notification.type),
+                  icon: _getIconForType(notification.type),
+                  heading: notification.type,
+                  text: notification.text,
+                );
+              },
+            );
+          }
+        },
       ),
     );
   }
@@ -86,6 +98,58 @@ class NotificationsPage extends StatelessWidget {
         subtitle: Text(text),
         contentPadding: const EdgeInsets.all(16.0),
       ),
+    );
+  }
+
+  Color _getColorForType(String type) {
+    switch (type) {
+      case 'New Rent':
+        return Colors.blueAccent;
+    // Add other cases for different notification types
+      default:
+        return Colors.grey;
+    }
+  }
+
+  IconData _getIconForType(String type) {
+    switch (type) {
+      case 'New Rent':
+        return Icons.car_rental; // Replace with appropriate icon
+    // Add other cases for different notification types
+      default:
+        return Icons.notifications;
+    }
+  }
+}
+
+class Notification {
+  final int id;
+  final String type;
+  final String text;
+  final int value;
+  final int userId;
+  final int view;
+  final String dateTime;
+
+  Notification({
+    required this.id,
+    required this.type,
+    required this.text,
+    required this.value,
+    required this.userId,
+    required this.view,
+    required this.dateTime,
+  });
+
+  factory Notification.fromJson(Map<String, dynamic> json) {
+    return Notification(
+      id: json['id'],
+      type: json['type'],
+      text: json['text'],
+      value: json['value'],
+      userId: json['user_id'],
+      view: json['view'],
+      dateTime: json['date_time'],
     );
   }
 }
