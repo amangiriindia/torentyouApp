@@ -1,4 +1,4 @@
-package com.example.try_test
+package com.amzsoft.torentyou
 
 import io.flutter.embedding.android.FlutterActivity
 

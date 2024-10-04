@@ -63,6 +63,6 @@ class DefaultFirebaseOptions {
     messagingSenderId: '226599515210',
     projectId: 'try-chat-app-8d0ef',
     storageBucket: 'try-chat-app-8d0ef.appspot.com',
-    iosBundleId: 'com.example.tryTest',
+    iosBundleId: 'com.amzsoft.torentyou',
   );
 }
