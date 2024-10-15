@@ -21,7 +21,7 @@ class _RentalCategoryState extends State<RentalCategory> {
   }
 
   Future<void> fetchCategories() async {
-    const url = 'http://192.168.1.39:8080/api/v1/category/all-category';
+    const url = '${AppConstant.API_URL}api/v1/category/all-category';
     try {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
