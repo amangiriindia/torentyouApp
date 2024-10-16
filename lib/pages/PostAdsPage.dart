@@ -34,6 +34,8 @@ class _PostAdsContentState extends State<PostAdsContent> {
   String? selectedCategory;
   String? selectedSubCategory;
   bool? packageOption;
+  String? addLatitude;  // Variable for latitude
+  String? addLongitude;  // Variable for longitude
 
   // Controllers for input fields
   final TextEditingController productNameController = TextEditingController();
@@ -69,6 +71,25 @@ class _PostAdsContentState extends State<PostAdsContent> {
     setState(() {
       _image = selectedImage;
     });
+  }
+
+
+  // Call this method to update latitude and longitude
+  Future<void> updateCoordinates() async {
+    // Call the function to get updated latitude and longitude
+    Map<String, double>? location = await GoogleMapHelper.updateAddressForApi();
+
+    if (location != null) {
+      // Update the variables if the location is not null
+      addLatitude = location['latitude']?.toString();
+      addLongitude = location['longitude']?.toString();
+
+      // Optional: Print the updated values for debugging
+      print("Updated Latitude: $addLatitude, Longitude: $addLongitude");
+    } else {
+      // Handle the case where location could not be retrieved
+      print("Failed to update location.");
+    }
   }
 
   Future<void> fetchCategories() async {
@@ -149,6 +170,7 @@ class _PostAdsContentState extends State<PostAdsContent> {
 
   void _updateLocationFeild() async {
     String location = await GoogleMapHelper.getCurrentLocation();
+    updateCoordinates();
     setState(() {
       locationController.text = location; // Update the text property of the controller
     });
@@ -157,6 +179,9 @@ class _PostAdsContentState extends State<PostAdsContent> {
 
   Future<void> postProduct() async {
     // Validate required fields
+     if(addLatitude == null && addLongitude ==null){
+       updateCoordinates();
+     }
     if (_image == null ||
         productNameController.text.isEmpty ||
         selectedCategory == null ||
@@ -213,6 +238,8 @@ class _PostAdsContentState extends State<PostAdsContent> {
       "status": 1, // Assuming status is fixed
       "stock": stock,
       "image": imageUrl,
+      "addlongtitude" :addLongitude, // New parameter
+      "addletitude" :addLatitude,
     };
 
     // Send POST request
