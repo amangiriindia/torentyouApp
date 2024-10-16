@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'components/test_google_map.dart';
 import 'firebase_options.dart';
+import 'pages/PostAdsPage.dart';
 import 'pages/loginPage.dart';
 import 'pages/splashScreen.dart'; // Make sure this file exists
 
@@ -19,7 +21,7 @@ class MyApp extends StatelessWidget{
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: LoginPage(),
+      home: PostAdsPage(),
     );
   }
 }

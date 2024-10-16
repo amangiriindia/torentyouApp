@@ -4,6 +4,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
+import '../components/google_map_helper.dart';
 import '../consts.dart';
 import '../pageutills/myAdspage.dart';
 
@@ -36,7 +37,7 @@ class _PostAdsContentState extends State<PostAdsContent> {
 
   // Controllers for input fields
   final TextEditingController productNameController = TextEditingController();
-  final TextEditingController locationController = TextEditingController();
+  late  TextEditingController locationController = TextEditingController();
   final TextEditingController monthlyRentalController = TextEditingController();
   final TextEditingController depositController = TextEditingController();
   final TextEditingController tagsController = TextEditingController();
@@ -145,6 +146,14 @@ class _PostAdsContentState extends State<PostAdsContent> {
       return null;
     }
   }
+
+  void _updateLocationFeild() async {
+    String location = await GoogleMapHelper.getCurrentLocation();
+    setState(() {
+      locationController.text = location; // Update the text property of the controller
+    });
+  }
+
 
   Future<void> postProduct() async {
     // Validate required fields
@@ -322,7 +331,24 @@ print(response.statusCode);
               },
               decoration: _inputDecoration(hintText: 'Select Subcategory'),
             ),
-
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _updateLocationFeild, // Calls the function to update location
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min, // Keeps the button as small as possible
+                children: [
+                  Icon(Icons.location_on), // Location icon
+                  SizedBox(width: 8), // Spacing between icon and text
+                  Text("Get Location"), // Button text
+                ],
+              ),
+            ),
             const SizedBox(height: 20),
             const _Label(text: 'Location*'),
             _InputField(
