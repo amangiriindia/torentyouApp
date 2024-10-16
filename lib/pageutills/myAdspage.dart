@@ -2,6 +2,7 @@ import 'dart:convert'; // For decoding JSON response
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import '../consts.dart'; // Assuming your color definitions are here
 import '../pages/PostAdsPage.dart';
 import '../pages/Postadswithnavbar.dart';
@@ -22,8 +23,15 @@ class _MyAdsPageState extends State<MyAdsPage> {
   void initState() {
     super.initState();
     fetchMyAds(); // Fetch ads when the widget initializes
+    _getUserData();
   }
+  int? userId;
 
+  Future<void> _getUserData() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    userId = pref.getInt('userId') ?? 6;
+    setState(() {}); // Call setState to update the UI if `id` is being used there
+  }
   // Function to fetch ads from the API
   Future<void> fetchMyAds() async {
     try {
@@ -31,7 +39,7 @@ class _MyAdsPageState extends State<MyAdsPage> {
         Uri.parse('${AppConstant.API_URL}api/v1/product/user-myads-all-product'),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({
-          "seller_id": 6, // Assuming seller_id is hardcoded, you can replace it with dynamic data if needed
+          "seller_id": userId, // Assuming seller_id is hardcoded, you can replace it with dynamic data if needed
         }),
       );
 

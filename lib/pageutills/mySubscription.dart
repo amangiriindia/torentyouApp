@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../consts.dart';
+
 class MySubscriptionPage extends StatefulWidget {
   const MySubscriptionPage({super.key});
 
@@ -13,16 +15,27 @@ class MySubscriptionPage extends StatefulWidget {
 class _MySubscriptionPageState extends State<MySubscriptionPage> {
   List<Map<String, dynamic>> subscriptions = [];
   bool isLoading = true;
+  int userId = 0; // Default value
 
   @override
   void initState() {
     super.initState();
-    fetchSubscriptions();
+    _initializeUserData();
+  }
+
+  Future<void> _initializeUserData() async {
+    await _getUserData(); // Fetch userId first
+    fetchSubscriptions(); // Call fetchSubscriptions after userId is fetched
+  }
+
+  Future<void> _getUserData() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    userId = pref.getInt('userId') ?? 1; // Default value if userId is not found
+    setState(() {}); // Update UI if needed
   }
 
   Future<void> fetchSubscriptions() async {
-    const String url =
-        '${AppConstant.API_URL}api/v1/usersubscription/single-user-subscription/1';
+    final String url = '${AppConstant.API_URL}api/v1/usersubscription/single-user-subscription/$userId';
 
     try {
       final response = await http.get(Uri.parse(url));
@@ -76,6 +89,17 @@ class _MySubscriptionPageState extends State<MySubscriptionPage> {
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
+          : subscriptions.isEmpty
+          ? const Center(
+        child: Text(
+          "You have no subscriptions.",
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Colors.grey,
+          ),
+        ),
+      )
           : Padding(
         padding: const EdgeInsets.all(20.0),
         child: ListView.builder(

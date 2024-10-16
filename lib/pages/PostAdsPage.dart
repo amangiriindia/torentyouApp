@@ -4,6 +4,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import '../components/google_map_helper.dart';
 import '../consts.dart';
 import '../pageutills/myAdspage.dart';
@@ -36,6 +37,7 @@ class _PostAdsContentState extends State<PostAdsContent> {
   bool? packageOption;
   String? addLatitude;
   String? addLongitude;
+  int? userId;
 
   // Controllers for input fields
   final TextEditingController productNameController = TextEditingController();
@@ -51,7 +53,15 @@ class _PostAdsContentState extends State<PostAdsContent> {
   void initState() {
     super.initState();
     fetchCategories();
+    _getId();
   }
+
+  Future<void> _getId() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    userId = pref.getInt('userId') ?? 1;
+    setState(() {}); // Call setState to update the UI if `id` is being used there
+  }
+
 
   @override
   void dispose() {
@@ -219,7 +229,7 @@ class _PostAdsContentState extends State<PostAdsContent> {
 
     // Prepare the data with an array of image URLs
     Map<String, dynamic> data = {
-      "seller_id": 1, // Replace with actual seller_id
+      "seller_id": userId, // Replace with actual seller_id
       "category_id": int.parse(selectedCategory!),
       "subcategory": int.parse(selectedSubCategory!),
       "product_name": productNameController.text,
@@ -445,90 +455,93 @@ class _PostAdsContentState extends State<PostAdsContent> {
               ],
             ),
 
-            const SizedBox(height: 20),
-            const _Label(text: 'Description'),
-            _InputField(
-              hintText: 'Enter detailed description',
-              controller: descriptionController,
-              maxLines: 5,
-            ),
-            const SizedBox(height: 20),
-            const _Label(text: 'Upload Images*'),
-            GestureDetector(
-              onTap: _pickImages, // Call _pickImages to pick multiple images
-              child: Container(
-                width: double.infinity,
-                height: 100,
-                color: Colors.grey[200],
-                child: Center(
-                  child: Text(
-                    'Tap to upload images',
-                    style: TextStyle(color: Colors.grey[600]),
-                  ),
-                ),
+        const SizedBox(height: 20),
+        const _Label(text: 'Description'),
+        _InputField(
+          hintText: 'Enter detailed description',
+          controller: descriptionController,
+          maxLines: 5,
+        ),
+        const SizedBox(height: 20),
+        const _Label(text: 'Upload Images*'),
+        GestureDetector(
+          onTap: _pickImages, // Call _pickImages to pick multiple images
+          child: Container(
+            width: double.infinity,
+            height: 100,
+            color: Colors.grey[200],
+            child: Center(
+              child: Text(
+                'Tap to upload images',
+                style: TextStyle(color: Colors.grey[600]),
               ),
             ),
+          ),
+        ),
 
-            const SizedBox(height: 20),
-            // Display the selected images
-            // Display the selected images with a remove icon
-            // Display the selected images with a remove icon and error handling
-            Wrap(
-              spacing: 8.0,
-              children: _images.asMap().entries.map((entry) {
-                int index = entry.key; // Get the index of the image
-                XFile? image = entry.value; // Get the image
+        const SizedBox(height: 20),
 
-                return Stack(
-                  children: [
-                    // Try-catch to handle possible image loading errors
-                    if (File(image!.path).existsSync()) // Check if the file exists
-                      Image.file(
-                        File(image.path),
-                        width: 80,
-                        height: 80,
-                        fit: BoxFit.cover,
-                      )
-                    else
-                      Container(
-                        width: 80,
-                        height: 80,
-                        color: Colors.grey[300],
-                        child: Center(
-                          child: Icon(
-                            Icons.broken_image, // Show a broken image icon
-                            color: Colors.red,
-                          ),
-                        ),
-                      ),
-                    // Remove icon in the top-right corner
-                    Positioned(
-                      top: 0,
-                      right: 0,
-                      child: GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _images.removeAt(index); // Remove the image from the list
-                          });
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.red,
-                          ),
-                          padding: const EdgeInsets.all(4.0),
-                          child: Icon(
-                            Icons.close,
-                            color: Colors.white,
-                            size: 16, // Small size for the remove icon
-                          ),
+// Display the selected images with a remove icon and error handling
+        Wrap(
+          spacing: 8.0,
+          children: _images.asMap().entries.map((entry) {
+            int index = entry.key; // Get the index of the image
+            XFile? image = entry.value; // Get the image
+
+            return Padding(
+              padding: const EdgeInsets.all(2.0), // Add padding of 2px around the image item
+              child: Stack(
+                children: [
+                  // Try-catch to handle possible image loading errors
+                  if (File(image!.path).existsSync()) // Check if the file exists
+                    Image.file(
+                      File(image.path),
+                      width: 80,
+                      height: 80,
+                      fit: BoxFit.cover,
+                    )
+                  else
+                    Container(
+                      width: 80,
+                      height: 80,
+                      color: Colors.grey[300],
+                      child: Center(
+                        child: Icon(
+                          Icons.broken_image, // Show a broken image icon
+                          color: Colors.red,
                         ),
                       ),
                     ),
-                  ],
-                );
-              }).toList(),
-            ),
+                  // Remove icon in the top-right corner
+                  Positioned(
+                    top: 0,
+                    right: 0,
+                    child: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _images.removeAt(index); // Remove the image from the list
+                        });
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.red,
+                        ),
+                        padding: const EdgeInsets.all(4.0),
+                        child: Icon(
+                          Icons.close,
+                          color: Colors.white,
+                          size: 16, // Small size for the remove icon
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }).toList(),
+        ),
+
 
             const SizedBox(height: 30),
             Container(

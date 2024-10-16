@@ -35,13 +35,14 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
   Future<void> _loadUserData() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      _nameController.text = prefs.getString('userName') ?? 'Enter your name';
-      _contactController.text = prefs.getString('userPhone') ?? 'Enter your Phone Number';
+      _nameController.text = prefs.getString('name') ?? 'Enter your name';
+      _contactController.text = prefs.getString('contact') ?? 'Enter your Phone Number';
       _aboutController.text = prefs.getString('userAbout') ?? 'About text here';
-      _emailController.text = prefs.getString('userEmail') ?? 'Enter your email';
+      _emailController.text = prefs.getString('email') ?? 'Enter your email';
       userId = prefs.getInt('userId') ?? 0;
     });
   }
+
 
   void _toggleEditing() {
     setState(() {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:try_test/pages/settingsPage.dart';
 import 'package:try_test/pages/splashScreen.dart';
 import '../consts.dart';
@@ -19,7 +20,18 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   bool _isAppBarCollapsed = false;
+  int? userId;
 
+  @override
+  void initState() {
+    super.initState();
+    _getUserData();
+  }
+  Future<void> _getUserData() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    userId = pref.getInt('userId') ?? 1;
+    setState(() {}); // Call setState to update the UI if `id` is being used there
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(

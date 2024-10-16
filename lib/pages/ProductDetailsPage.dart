@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../chat/chat_screen.dart';
 import '../components/Button.dart';
 import '../consts.dart';
@@ -27,11 +28,18 @@ class ProductDetailsPage extends StatefulWidget {
 class _ProductDetailsPageState extends State<ProductDetailsPage> {
   Map<String, dynamic>? product;
   bool isLoading = true;
+  int? userId;
 
   @override
   void initState() {
     super.initState();
     fetchProductDetails();
+    _getUserData();
+  }
+  Future<void> _getUserData() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    userId = pref.getInt('userId') ?? 1;
+    setState(() {}); // Call setState to update the UI if `id` is being used there
   }
 
   Future<void> fetchProductDetails() async {
