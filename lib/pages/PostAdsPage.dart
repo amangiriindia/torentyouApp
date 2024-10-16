@@ -27,19 +27,19 @@ class PostAdsContent extends StatefulWidget {
 }
 
 class _PostAdsContentState extends State<PostAdsContent> {
-  XFile? _image;
+  List<XFile?> _images = []; // List to hold multiple images
   final ImagePicker _picker = ImagePicker();
   List<Map<String, dynamic>> categories = [];
   List<Map<String, dynamic>> subcategories = [];
   String? selectedCategory;
   String? selectedSubCategory;
   bool? packageOption;
-  String? addLatitude;  // Variable for latitude
-  String? addLongitude;  // Variable for longitude
+  String? addLatitude;
+  String? addLongitude;
 
   // Controllers for input fields
   final TextEditingController productNameController = TextEditingController();
-  late  TextEditingController locationController = TextEditingController();
+  late TextEditingController locationController = TextEditingController();
   final TextEditingController monthlyRentalController = TextEditingController();
   final TextEditingController depositController = TextEditingController();
   final TextEditingController tagsController = TextEditingController();
@@ -66,11 +66,13 @@ class _PostAdsContentState extends State<PostAdsContent> {
     super.dispose();
   }
 
-  Future<void> _pickImage() async {
-    final XFile? selectedImage = await _picker.pickImage(source: ImageSource.gallery);
-    setState(() {
-      _image = selectedImage;
-    });
+  Future<void> _pickImages() async { // Change this method to pick multiple images
+    final List<XFile>? selectedImages = await _picker.pickMultiImage();
+    if (selectedImages != null) {
+      setState(() {
+        _images = selectedImages; // Set the state with the selected images
+      });
+    }
   }
 
 
@@ -141,31 +143,26 @@ class _PostAdsContentState extends State<PostAdsContent> {
     }
   }
 
-  Future<String?> uploadImageToFirebase(XFile? image) async {
-    if (image == null) return null;
+  Future<List<String>> uploadImagesToFirebase(List<XFile?> images) async {
+    List<String> imageUrls = []; // To hold all uploaded image URLs
 
-    try {
-      // Create a reference to Firebase Storage
-      FirebaseStorage storage = FirebaseStorage.instance;
+    for (var image in images) {
+      if (image == null) continue; // Skip if image is null
 
-      // Create a unique filename for the image
-      String fileName = DateTime.now().millisecondsSinceEpoch.toString() + '.jpg';
+      try {
+        FirebaseStorage storage = FirebaseStorage.instance;
+        String fileName = DateTime.now().millisecondsSinceEpoch.toString() + '.jpg';
+        Reference ref = storage.ref().child('ads_images/$fileName');
+        UploadTask uploadTask = ref.putFile(File(image.path));
 
-      // Upload the image to Firebase Storage
-      Reference ref = storage.ref().child('ads_images/$fileName');
-      UploadTask uploadTask = ref.putFile(File(image.path));
-
-      // Wait for the upload to complete
-      TaskSnapshot snapshot = await uploadTask;
-
-      // Get the image URL
-      String downloadUrl = await snapshot.ref.getDownloadURL();
-
-      return downloadUrl;
-    } catch (e) {
-      print('Error uploading image: $e');
-      return null;
+        TaskSnapshot snapshot = await uploadTask;
+        String downloadUrl = await snapshot.ref.getDownloadURL();
+        imageUrls.add(downloadUrl); // Add the download URL to the list
+      } catch (e) {
+        print('Error uploading image: $e');
+      }
     }
+    return imageUrls; // Return the list of image URLs
   }
 
   void _updateLocationFeild() async {
@@ -178,11 +175,10 @@ class _PostAdsContentState extends State<PostAdsContent> {
 
 
   Future<void> postProduct() async {
-    // Validate required fields
-     if(addLatitude == null && addLongitude ==null){
-       updateCoordinates();
-     }
-    if (_image == null ||
+    if (addLatitude == null && addLongitude == null) {
+      updateCoordinates();
+    }
+    if (_images.isEmpty ||
         productNameController.text.isEmpty ||
         selectedCategory == null ||
         selectedSubCategory == null ||
@@ -192,20 +188,19 @@ class _PostAdsContentState extends State<PostAdsContent> {
         stockController.text.isEmpty ||
         packageOption == null) {
 
-      // Show a snackbar or dialog to notify the user
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fill all required fields')),
       );
       return;
     }
 
-    // Upload image
-    String? imageUrl = await uploadImageToFirebase(_image);
+    // Upload images
+    List<String> imageUrls = await uploadImagesToFirebase(_images);
 
-    if (imageUrl == null) {
+    if (imageUrls.isEmpty) {
       // Handle error if image upload fails
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to upload image')),
+        const SnackBar(content: Text('Failed to upload images')),
       );
       return;
     }
@@ -222,7 +217,7 @@ class _PostAdsContentState extends State<PostAdsContent> {
       return;
     }
 
-    // Prepare the data
+    // Prepare the data with an array of image URLs
     Map<String, dynamic> data = {
       "seller_id": 1, // Replace with actual seller_id
       "category_id": int.parse(selectedCategory!),
@@ -232,14 +227,14 @@ class _PostAdsContentState extends State<PostAdsContent> {
       "deposit": deposit,
       "description": descriptionController.text,
       "tags": tagsController.text,
-      "packages": packageOption == true ? "Yes" : "No", // Adjust as per API expectation
+      "packages": packageOption == true ? "Yes" : "No",
       "short_description": shortDescriptionController.text,
       "location": locationController.text,
       "status": 1, // Assuming status is fixed
       "stock": stock,
-      "image": imageUrl,
-      "addlongtitude" :addLongitude, // New parameter
-      "addletitude" :addLatitude,
+      "images": imageUrls, // Send the image URLs as an array
+      "addlongtitude": addLongitude,
+      "addletitude": addLatitude,
     };
 
     // Send POST request
@@ -250,12 +245,11 @@ class _PostAdsContentState extends State<PostAdsContent> {
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(data),
       );
-print(response.body);
-print(response.statusCode);
+      print(response.body);
+      print(response.statusCode);
       if (response.statusCode == 200 || response.statusCode == 201) {
         final responseData = jsonDecode(response.body);
         if (responseData['success']) {
-          // Show success message or navigate
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Product posted successfully')),
           );
@@ -266,24 +260,22 @@ print(response.statusCode);
             ),
           );
         } else {
-          // Handle API error
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Error: ${responseData['message']}')),
           );
         }
       } else {
-        // Handle non-200 response
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to post product: ${response.statusCode}')),
         );
       }
     } catch (e) {
-      // Handle network or parsing errors
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: $e')),
       );
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -382,31 +374,6 @@ print(response.statusCode);
               hintText: 'Enter location',
               controller: locationController,
             ),
-
-            const SizedBox(height: 20),
-            const _Label(text: 'Product Image*'),
-            GestureDetector(
-              onTap: _pickImage,
-              child: Container(
-                height: 150,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: _image != null
-                    ? Image.file(
-                  File(_image!.path),
-                  fit: BoxFit.cover,
-                )
-                    : const Icon(
-                  Icons.camera_alt,
-                  color: Colors.grey,
-                  size: 50,
-                ),
-              ),
-            ),
-
             const SizedBox(height: 20),
             const _Label(text: 'Monthly Rental*'),
             _InputField(
@@ -484,6 +451,83 @@ print(response.statusCode);
               hintText: 'Enter detailed description',
               controller: descriptionController,
               maxLines: 5,
+            ),
+            const SizedBox(height: 20),
+            const _Label(text: 'Upload Images*'),
+            GestureDetector(
+              onTap: _pickImages, // Call _pickImages to pick multiple images
+              child: Container(
+                width: double.infinity,
+                height: 100,
+                color: Colors.grey[200],
+                child: Center(
+                  child: Text(
+                    'Tap to upload images',
+                    style: TextStyle(color: Colors.grey[600]),
+                  ),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 20),
+            // Display the selected images
+            // Display the selected images with a remove icon
+            // Display the selected images with a remove icon and error handling
+            Wrap(
+              spacing: 8.0,
+              children: _images.asMap().entries.map((entry) {
+                int index = entry.key; // Get the index of the image
+                XFile? image = entry.value; // Get the image
+
+                return Stack(
+                  children: [
+                    // Try-catch to handle possible image loading errors
+                    if (File(image!.path).existsSync()) // Check if the file exists
+                      Image.file(
+                        File(image.path),
+                        width: 80,
+                        height: 80,
+                        fit: BoxFit.cover,
+                      )
+                    else
+                      Container(
+                        width: 80,
+                        height: 80,
+                        color: Colors.grey[300],
+                        child: Center(
+                          child: Icon(
+                            Icons.broken_image, // Show a broken image icon
+                            color: Colors.red,
+                          ),
+                        ),
+                      ),
+                    // Remove icon in the top-right corner
+                    Positioned(
+                      top: 0,
+                      right: 0,
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _images.removeAt(index); // Remove the image from the list
+                          });
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.red,
+                          ),
+                          padding: const EdgeInsets.all(4.0),
+                          child: Icon(
+                            Icons.close,
+                            color: Colors.white,
+                            size: 16, // Small size for the remove icon
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              }).toList(),
             ),
 
             const SizedBox(height: 30),
