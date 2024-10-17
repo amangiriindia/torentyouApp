@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:try_test/pages/settingsPage.dart';
 import 'package:try_test/pages/splashScreen.dart';
+import '../chat/chat_list_lookingfor_screen.dart';
+import '../chat/chat_list_rentreq_screen.dart';
+import '../chat/chat_list_screen.dart';
 import '../consts.dart';
 import '../pageutills/myAdsReviews.dart';
 import '../pageutills/myAdspage.dart';
@@ -50,13 +53,13 @@ class _ProfilePageState extends State<ProfilePage> {
             SliverAppBar(
               expandedHeight: 350, // Adjust as needed
               flexibleSpace: FlexibleSpaceBar(
-                background: _TopPortion(),
+                background: const _TopPortion(),
                 title: _isAppBarCollapsed
-                    ? Row(
+                    ? const Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          const SizedBox(width: 8),
-                          const Text("My Profile"),
+                          SizedBox(width: 8),
+                          Text("My Profile"),
                         ],
                       )
                     : null,
@@ -77,7 +80,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       children: [
                         const SizedBox(height: 16),
                         const Divider(),
-                        _SectionHeader(text: 'Ads'),
+                        const _SectionHeader(text: 'Ads'),
                         _ProfileOptionItem(
                           icon: Icons.add_circle_outline,
                           text: 'Post Ad',
@@ -85,7 +88,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => PostAdsWithNavPage(),
+                                builder: (context) => const PostAdsWithNavPage(),
                               ),
                             );
                           },
@@ -97,14 +100,14 @@ class _ProfilePageState extends State<ProfilePage> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => MyAdsPage(),
+                                builder: (context) => const MyAdsPage(),
                               ),
                             );
                           },
                         ),
 
                         const Divider(),
-                        _SectionHeader(text: 'Subscription Plans'),
+                        const _SectionHeader(text: 'Subscription Plans'),
                         _ProfileOptionItem(
                           icon: Icons.new_releases,
                           text: 'New Plan',
@@ -112,7 +115,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => SubscriptionPlanPage(),
+                                builder: (context) => const SubscriptionPlanPage(),
                               ),
                             );
                           },
@@ -124,13 +127,13 @@ class _ProfilePageState extends State<ProfilePage> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => MySubscriptionPage(),
+                                builder: (context) => const MySubscriptionPage(),
                               ),
                             );
                           },
                         ),
                         const Divider(),
-                        _SectionHeader(text: 'Ads Reviews'),
+                        const _SectionHeader(text: 'Ads Reviews'),
                         _ProfileOptionItem(
                           icon: Icons.rate_review,
                           text: 'My Ads Reviews',
@@ -138,13 +141,13 @@ class _ProfilePageState extends State<ProfilePage> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => MyReviewPage(),
+                                builder: (context) => const MyReviewPage(),
                               ),
                             );
                           },
                         ),
                         const Divider(),
-                        _SectionHeader(text: 'Profile & Settings'),
+                        const _SectionHeader(text: 'Profile & Settings'),
                         _ProfileOptionItem(
                           icon: Icons.person,
                           text: 'Profile',
@@ -152,7 +155,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => UpdateProfilePage(),
+                                builder: (context) => const UpdateProfilePage(),
                               ),
                             );
                           },
@@ -164,13 +167,13 @@ class _ProfilePageState extends State<ProfilePage> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => SettingsPage(heading: 'Settings'),
+                                builder: (context) => const SettingsPage(heading: 'Settings'),
                               ),
                             );
                           },
                         ),
                         const Divider(),
-                        _SectionHeader(text: 'My Chats'),
+                        const _SectionHeader(text: 'My Chats'),
                         _ProfileOptionItem(
                           icon: Icons.request_page,
                           text: 'Rent Request',
@@ -178,7 +181,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => SettingsPage(heading: 'Rent Request'),
+                                builder: (context) => const ChatListRentreqScreen(),
                               ),
                             );
                           },
@@ -190,7 +193,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => SettingsPage(heading: 'Looking For'),
+                                builder: (context) => const ChatListLookingforScreen(),
                               ),
                             );
                           },
@@ -227,10 +230,17 @@ class _ProfilePageState extends State<ProfilePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             _GradientButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>  ChatListScreen(),
+                  ),
+                );
+              },
               label: "My Chats",
               icon: Icons.message_rounded,
-              gradient: LinearGradient(
+              gradient: const LinearGradient(
                 colors: [
                   AppColors.primaryTextColor,
                   AppColors.primaryColor,
@@ -243,13 +253,13 @@ class _ProfilePageState extends State<ProfilePage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => PostAdsWithNavPage(),
+                    builder: (context) => const PostAdsWithNavPage(),
                   ),
                 );
               },
               label: "Post Ads",
               icon: Icons.person_add_alt_1,
-              gradient: LinearGradient(
+              gradient: const LinearGradient(
                 colors: [
                   AppColors.primaryColor,
                   AppColors.primaryTextColor,
@@ -384,7 +394,7 @@ class _TopPortion extends StatelessWidget {
                   color: Colors.white,
                   shape: BoxShape.circle,
                 ),
-                child: Center(
+                child: const Center(
                   child: Text(
                     'A', // Replace 'A' with dynamic text if needed
                     style: TextStyle(
@@ -410,7 +420,7 @@ class _TopPortion extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => UpdateProfilePage(),
+                            builder: (context) => const UpdateProfilePage(),
                           ),
                         );
                       // Add your edit action here

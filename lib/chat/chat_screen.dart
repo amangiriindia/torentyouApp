@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import 'chat_service.dart';
 
 class ChatPage extends StatefulWidget {
-  final String senderId;  // Added senderId
+  final int senderId;  // Added senderId
   final String senderEmail; // Added senderEmail
   final String receiverUserEmail;
-  final String receiverUserID;
+  final int receiverUserID;
 
   const ChatPage({
     super.key,
@@ -28,9 +28,9 @@ class _ChatPageState extends State<ChatPage> {
   void sendMessage() async {
     if (_messageController.text.isNotEmpty) {
       await _chatService.sendMessage(
-        widget.senderId,          // Pass senderId from ChatPage
+        widget.senderId.toString(),          // Pass senderId from ChatPage
         widget.senderEmail,        // Pass senderEmail from ChatPage
-        widget.receiverUserID,     // Receiver's ID
+        widget.receiverUserID.toString(),     // Receiver's ID
         _messageController.text,   // The message text
       );
       // Clear controller
@@ -114,7 +114,7 @@ class _ChatPageState extends State<ChatPage> {
   // Build message list
   Widget _buildMessageList() {
     return StreamBuilder(
-      stream: _chatService.getMessages(widget.receiverUserID, widget.senderId),
+      stream: _chatService.getMessages(widget.receiverUserID.toString(), widget.senderId.toString()),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return Text('Error${snapshot.error}');

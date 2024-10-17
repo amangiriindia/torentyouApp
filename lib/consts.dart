@@ -30,7 +30,7 @@ class AppColors {
 }
 
 class AppConstant {
-  static const String API_URL = 'http://192.168.231.249:8080/';
+  static const String API_URL = 'http://192.168.21.249:8080/';
   static const String MAP_KEY = 'AIzaSyBd98NLneHO0QtwIvzfaLrkG4HMU1MdD_E';
 
 

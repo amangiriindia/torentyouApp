@@ -28,7 +28,11 @@ class ProductDetailsPage extends StatefulWidget {
 class _ProductDetailsPageState extends State<ProductDetailsPage> {
   Map<String, dynamic>? product;
   bool isLoading = true;
-  int? userId;
+  int? senderUserId;
+  String? senderEmail;
+  int? reciverUserId;
+  String? reciverEmail;
+  String? productName;
 
   @override
   void initState() {
@@ -36,22 +40,108 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     fetchProductDetails();
     _getUserData();
   }
+
+
+
+  Future<void> createChatRoom ()async {
+    // Define the API URL (replace with your actual API endpoint)
+    const String apiUrl = '${AppConstant.API_URL}api/v1/chat/create-chat-room';
+
+    try {
+      // Prepare the request payload
+      final Map<String, dynamic> requestData = {
+        'chat_room_id': '${senderUserId}_${reciverUserId}',
+        'sender_id': senderUserId,
+        'sender_email': senderEmail,
+        'receiver_id': reciverUserId,
+        'receiver_email': reciverEmail,
+        'product_id': widget.productId,
+        'product_name': productName,
+      };
+
+      // Send the POST request
+      final  response = await http.post(
+        Uri.parse(apiUrl),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(requestData),
+      );
+      print(response.body);
+      if (response.statusCode == 201) {
+        // If the server returns a 201 CREATED response
+        print('Chat room created successfully.');
+      } else {
+        // If the server returns an error response
+        print('Failed to create chat room. Status code: ${response.statusCode}');
+        print('Response body: ${response.body}');
+      }
+    } catch (e) {
+      // Handle any errors
+      print('Error occurred: $e');
+    }
+  }
+
+
   Future<void> _getUserData() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
-    userId = pref.getInt('userId') ?? 1;
+    senderUserId = pref.getInt('userId') ?? 0;
+    senderEmail = pref.getString('email') ?? '';
     setState(() {}); // Call setState to update the UI if `id` is being used there
   }
+
+  Future<void> getReciverEmail(int reciverId) async {
+    final url = '${AppConstant.API_URL}api/v1/seller/single-seller/$reciverId';
+
+    try {
+      // Making GET request
+      final response = await http.get(Uri.parse(url));
+
+      // Print response body and status code for debugging
+      print('Response Body: ${response.body}');
+      print('Status Code: ${response.statusCode}');
+
+      // Check if status code is 200 (success)
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        // Check if 'email' field exists in the response
+        if (data != null && data['email'] != null) {
+          reciverEmail = data['email']; // Set the email
+          print('Reciver Email: $reciverEmail');
+        } else {
+          print("Email not found in response data");
+        }
+      } else {
+        // Handle cases where the status code is not 200
+        print("Failed to fetch data. Status Code: ${response.statusCode}");
+      }
+    } catch (e) {
+      // Print the error message for debugging
+      print("Error occurred: $e");
+    }
+  }
+
 
   Future<void> fetchProductDetails() async {
     final url = '${AppConstant.API_URL}api/v1/product/single-product/${widget.productId}';
     try {
       final response = await http.get(Uri.parse(url));
+      print(response.body);
+      print(response.statusCode);
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         setState(() {
           product = data;
           isLoading = false;
+          reciverUserId = product?['seller_id'];
+          productName = product?['product_name'];
+
         });
+
+        if(reciverUserId!=null){
+          getReciverEmail(reciverUserId!);
+        }
       } else {
         // Handle the error
         setState(() {
@@ -71,6 +161,8 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     final subject = 'Check out this ${product?['product_name']} on TorentYou!';
     final text = '${product?['short_description']} - ${product?['description']}';
     final imageUrl = product?['image']; // Get the image URL
+
+
 
     try {
       await Share.share(
@@ -248,19 +340,24 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
             ButtonCustom(
               callback: () {
                 // Navigate to the ChatPage when the button is clicked
+                createChatRoom();
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => ChatPage(
-                      senderId: "randomSenderId123",    // Replace with actual senderId
-                      senderEmail: "sender@example.com", // Replace with actual senderEmail
-                      receiverUserEmail: "receiver@example.com", // Replace with actual receiverUserEmail
-                      receiverUserID: "randomReceiverId456",    // Replace with actual receiverUserID
+                      senderId: senderUserId!,
+                      senderEmail: senderEmail!,
+                      receiverUserID: reciverUserId!,
+                      receiverUserEmail: reciverEmail!,
+                      // senderId: "randomSenderId123",    // Replace with actual senderId
+                      // senderEmail: "sender@example.com", // Replace with actual senderEmail
+                      // receiverUserEmail: "receiver@example.com", // Replace with actual receiverUserEmail
+                      // receiverUserID: "randomReceiverId456",    // Replace with actual receiverUserID
                     ),
                   ),
                 );
               },
-              title: "Chat Now",
+              title: "Rent Now",
               gradient: const LinearGradient(colors: [
                 AppColors.primaryColor,
                 AppColors.primaryTextColor,
