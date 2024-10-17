@@ -18,19 +18,21 @@ class _MyAdsPageState extends State<MyAdsPage> {
   List<dynamic> myAds = []; // This will store the list of ads
   bool isLoading = true; // Show loading indicator initially
   bool hasError = false; // Error handling flag
+  int? userId;
 
   @override
   void initState() {
     super.initState();
-    fetchMyAds(); // Fetch ads when the widget initializes
     _getUserData();
   }
-  int? userId;
 
   Future<void> _getUserData() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     userId = pref.getInt('userId') ?? 6;
     setState(() {}); // Call setState to update the UI if `id` is being used there
+    if(userId != null){
+      fetchMyAds(); // Fetch ads when the widget initializes
+    }
   }
   // Function to fetch ads from the API
   Future<void> fetchMyAds() async {
@@ -42,23 +44,18 @@ class _MyAdsPageState extends State<MyAdsPage> {
           "seller_id": userId, // Assuming seller_id is hardcoded, you can replace it with dynamic data if needed
         }),
       );
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        if (data['success']) {
+      print('seller id $userId');
+      print(response.body);
+      print(response.statusCode);
+      final data = jsonDecode(response.body);
+      if (response.statusCode == 200 && data['success']) {
           setState(() {
             myAds = data['results']; // Store ads in myAds list
             isLoading = false;
           });
-        } else {
-          setState(() {
-            hasError = true; // Show error if API call fails
-            isLoading = false;
-          });
-        }
       } else {
         setState(() {
-          hasError = true; // Show error if API call fails
+          hasError = false; // Show error if API call fails
           isLoading = false;
         });
       }

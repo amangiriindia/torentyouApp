@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../consts.dart';
 import 'package:http/http.dart' as http;
 
@@ -40,11 +41,21 @@ class _MyReviewPageState extends State<MyReviewPage> {
   List<Review> myAds = [];
   bool isLoading = true;
   bool hasError = false;
+  int? userId;
 
   @override
   void initState() {
     super.initState();
-    fetchMyAds();
+    _getUserData();
+
+  }
+  Future<void> _getUserData() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    userId = pref.getInt('userId') ?? 6;
+    setState(() {}); // Call setState to update the UI if `id` is being used there
+    if(userId != null){
+      fetchMyAds(); // Fetch ads when the widget initializes
+    }
   }
 
   Future<void> fetchMyAds() async {
@@ -53,7 +64,7 @@ class _MyReviewPageState extends State<MyReviewPage> {
         Uri.parse('${AppConstant.API_URL}api/v1/product/user-myads-all-product'),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({
-          "seller_id": 6,
+          "seller_id": userId,
         }),
       );
       print(response.body);
