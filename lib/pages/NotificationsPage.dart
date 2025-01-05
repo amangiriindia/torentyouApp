@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:try_test/consts.dart';
 
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({super.key});
@@ -29,7 +30,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
     });
   }
   Future<List<Notification>> fetchNotifications() async {
-    final response = await http.get(Uri.parse('http://192.168.1.39:8080/api/v1/notification/user-all-notification/1'));
+    final response = await http.get(Uri.parse('${AppConstant.API_URL}/api/v1/notification/user-all-notification/1'));
 
     if (response.statusCode == 200) {
       List<dynamic> data = json.decode(response.body);

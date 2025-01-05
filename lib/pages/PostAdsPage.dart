@@ -38,6 +38,12 @@ class _PostAdsContentState extends State<PostAdsContent> {
   String? addLatitude;
   String? addLongitude;
   int? userId;
+  String? selectedDay;
+  String? selectedMonth;
+  String duration = "";
+
+  final List<String> days = List.generate(31, (index) => "${index + 1} day");
+  final List<String> months = List.generate(12, (index) => "${index + 1} month");
 
   // Controllers for input fields
   final TextEditingController productNameController = TextEditingController();
@@ -286,6 +292,12 @@ class _PostAdsContentState extends State<PostAdsContent> {
     }
   }
 
+  void updateDuration() {
+    setState(() {
+      duration = "${selectedMonth ?? ""} ${selectedDay ?? ""}".trim();
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -455,6 +467,49 @@ class _PostAdsContentState extends State<PostAdsContent> {
               ],
             ),
 
+            const SizedBox(height: 20),
+            const _Label(text: 'Select Duration'),
+            Row(
+              children: [
+                Expanded(
+                  child: DropdownButtonFormField<String>(
+                    value: selectedMonth,
+                    items: months
+                        .map((month) => DropdownMenuItem(
+                      value: month,
+                      child: Text(month),
+                    ))
+                        .toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        selectedMonth = value;
+                        updateDuration();
+                      });
+                    },
+                    decoration: _inputDecoration(hintText: 'Select Month'),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: DropdownButtonFormField<String>(
+                    value: selectedDay,
+                    items: days
+                        .map((day) => DropdownMenuItem(
+                      value: day,
+                      child: Text(day),
+                    ))
+                        .toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        selectedDay = value;
+                        updateDuration();
+                      });
+                    },
+                    decoration: _inputDecoration(hintText: 'Select Day'),
+                  ),
+                ),
+              ],
+            ),
         const SizedBox(height: 20),
         const _Label(text: 'Description'),
         _InputField(

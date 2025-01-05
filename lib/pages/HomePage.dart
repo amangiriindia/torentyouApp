@@ -24,7 +24,7 @@ class _HomePageState extends State<HomePage> {
           padding: const EdgeInsets.only(top: 15.0, left: 8, right: 8, bottom: 10.0),
           child: TextField(
             decoration: InputDecoration(
-              hintText: "Search products...",
+              hintText: "Rentals near you...",
               prefixIcon: const Icon(Icons.search),
               border: OutlineInputBorder(
                 gapPadding: 0,

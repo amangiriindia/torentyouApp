@@ -357,7 +357,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                   ),
                 );
               },
-              title: "Rent Now",
+              title: "Chat Now",
               gradient: const LinearGradient(colors: [
                 AppColors.primaryColor,
                 AppColors.primaryTextColor,

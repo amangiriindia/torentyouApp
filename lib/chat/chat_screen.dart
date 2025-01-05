@@ -14,7 +14,7 @@ class ChatPage extends StatefulWidget {
     required this.senderId, // Required senderId
     required this.senderEmail, // Required senderEmail
     required this.receiverUserEmail,
-    required this.receiverUserID
+    required this.receiverUserID,
   });
 
   @override
@@ -38,11 +38,10 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.black,
         title: Text(widget.receiverUserEmail),
@@ -53,7 +52,6 @@ class _ChatPageState extends State<ChatPage> {
           Expanded(
             child: _buildMessageList(),
           ),
-
           // User input
           _buildMessageInput(),
         ],
@@ -66,14 +64,14 @@ class _ChatPageState extends State<ChatPage> {
     Map<String, dynamic> data = document.data() as Map<String, dynamic>;
 
     // Alignment logic for message based on senderId:
-    var alignment = (data['senderId'] == widget.senderId)
-        ? Alignment.centerRight
-        : Alignment.centerLeft;
+    bool isSender = data['senderId'] == widget.senderId;
+
+    var alignment = isSender ? Alignment.centerRight : Alignment.centerLeft;
 
     double bottomRight = 0;
     double bottomLeft = 0;
 
-    if (alignment == Alignment.centerRight) {
+    if (isSender) {
       bottomRight = 1;
       bottomLeft = 30;
     } else {
@@ -84,12 +82,14 @@ class _ChatPageState extends State<ChatPage> {
     return Container(
       alignment: alignment,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         child: Column(
+          crossAxisAlignment:
+          isSender ? CrossAxisAlignment.end : CrossAxisAlignment.start, // Align text inside the bubble
           children: [
             Container(
               decoration: BoxDecoration(
-                color: Colors.orange,
+                color: isSender ? Colors.orange : Colors.grey[800], // Different color for sender and receiver
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(30),
                   topRight: const Radius.circular(30),
@@ -98,7 +98,8 @@ class _ChatPageState extends State<ChatPage> {
                 ),
               ),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 20),
+                padding:
+                const EdgeInsets.symmetric(horizontal: 12.0, vertical: 15),
                 child: Text(
                   data['message'],
                   style: const TextStyle(fontSize: 16, color: Colors.white),
@@ -114,7 +115,8 @@ class _ChatPageState extends State<ChatPage> {
   // Build message list
   Widget _buildMessageList() {
     return StreamBuilder(
-      stream: _chatService.getMessages(widget.receiverUserID.toString(), widget.senderId.toString()),
+      stream: _chatService.getMessages(
+          widget.receiverUserID.toString(), widget.senderId.toString()),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return Text('Error${snapshot.error}');

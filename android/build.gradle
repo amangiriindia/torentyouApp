@@ -1,29 +1,35 @@
 buildscript {
-    ext.kotlin_version = '1.9.0' // Use the latest version
+    ext.kotlin_version = '1.9.0' // Use the latest version of Kotlin
     repositories {
         google()
         mavenCentral()
+        maven {
+            url  "https://phonepe.mycloudrepo.io/public/repositories/phonepe-intentsdk-android"
+        }
     }
     dependencies {
-        classpath "com.android.tools.build:gradle:7.4.2" // Ensure you have a compatible Gradle plugin
+        classpath "com.android.tools.build:gradle:7.4.2" // Ensure a compatible Gradle plugin version
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
 
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 allprojects {
     repositories {
         google()
         mavenCentral()
+        maven {
+            url  "https://phonepe.mycloudrepo.io/public/repositories/phonepe-intentsdk-android"
+        }
     }
 }
 
 rootProject.buildDir = "../build"
+
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
-}
-subprojects {
-    project.evaluationDependsOn(":app")
+    evaluationDependsOn(":app")
 }
 
 tasks.register("clean", Delete) {
