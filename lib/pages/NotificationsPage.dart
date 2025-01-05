@@ -13,7 +13,7 @@ class NotificationsPage extends StatefulWidget {
 
 class _NotificationsPageState extends State<NotificationsPage> {
   late Future<List<Notification>> _notifications;
-  late int userId=0;
+  late int userId = 0;
 
   @override
   void initState() {
@@ -21,24 +21,38 @@ class _NotificationsPageState extends State<NotificationsPage> {
     _loadUserData();
     _notifications = fetchNotifications();
   }
-  // Fetch user data from SharedPreferences
+
   Future<void> _loadUserData() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-
       userId = prefs.getInt('userId') ?? 0;
     });
   }
   Future<List<Notification>> fetchNotifications() async {
-    final response = await http.get(Uri.parse('${AppConstant.API_URL}/api/v1/notification/user-all-notification/1'));
+    try {
+      final response = await http.get(
+        Uri.parse('${AppConstant.API_URL}api/v1/notification/user-all-notification/$userId'),
+      );
 
-    if (response.statusCode == 200) {
-      List<dynamic> data = json.decode(response.body);
-      return data.map((json) => Notification.fromJson(json)).toList();
-    } else {
-      throw Exception('Failed to load notifications');
+      print('Status Code: ${response.statusCode}');
+      print('Response Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        List<dynamic> data = json.decode(response.body);
+        return data.map((json) => Notification.fromJson(json)).toList();
+      } else if (response.statusCode == 404){
+        print(response.statusCode);
+        throw Exception('No notification found');
+      }else {
+        print('Error Response Body: ${response.body}');
+        throw Exception('Failed to fetch notifications: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error occurred: $e');
+      throw Exception('An unexpected error occurred while fetching notifications.');
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +65,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No notifications available.'));
+            return _buildNoNotificationsView(context);
           } else {
             final notifications = snapshot.data!;
 
@@ -71,6 +85,44 @@ class _NotificationsPageState extends State<NotificationsPage> {
             );
           }
         },
+      ),
+    );
+  }
+
+  Widget _buildNoNotificationsView(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20.0),
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.blueAccent, Colors.lightBlue],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.notifications_off, size: 100, color: Colors.white),
+          const SizedBox(height: 20),
+          const Text(
+            "No Notifications Yet!",
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 10),
+          const Text(
+            "You're all caught up. Check back later for updates.",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.white70,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -106,7 +158,6 @@ class _NotificationsPageState extends State<NotificationsPage> {
     switch (type) {
       case 'New Rent':
         return Colors.blueAccent;
-    // Add other cases for different notification types
       default:
         return Colors.grey;
     }
@@ -115,8 +166,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
   IconData _getIconForType(String type) {
     switch (type) {
       case 'New Rent':
-        return Icons.car_rental; // Replace with appropriate icon
-    // Add other cases for different notification types
+        return Icons.car_rental;
       default:
         return Icons.notifications;
     }

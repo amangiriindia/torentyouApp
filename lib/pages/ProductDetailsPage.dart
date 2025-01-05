@@ -3,10 +3,12 @@ import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../chat/chat_screen.dart';
 import '../components/Button.dart';
+import '../components/grdient_button.dart';
 import '../consts.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import '../pageutills/chat_alrert_box.dart';
 import 'ChatScreen.dart';
 
 class ProductDetailsPage extends StatefulWidget {
@@ -337,36 +339,105 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                 ),
               ),
             ),
+
             ButtonCustom(
               callback: () {
-                // Navigate to the ChatPage when the button is clicked
-                createChatRoom();
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ChatPage(
-                      senderId: senderUserId!,
-                      senderEmail: senderEmail!,
-                      receiverUserID: reciverUserId!,
-                      receiverUserEmail: reciverEmail!,
-                      // senderId: "randomSenderId123",    // Replace with actual senderId
-                      // senderEmail: "sender@example.com", // Replace with actual senderEmail
-                      // receiverUserEmail: "receiver@example.com", // Replace with actual receiverUserEmail
-                      // receiverUserID: "randomReceiverId456",    // Replace with actual receiverUserID
+                // Show alert dialog before navigating
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(  title: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: const [
+                        Icon(Icons.warning, color: Colors.red), // Icon for the heading
+                        SizedBox(width: 10), // Add space between the icon and the text
+                        Text(
+                          "Important Notice",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ],
                     ),
-                  ),
+                      content: const Text(
+                        "For your safety:\n\n"
+                            "Do not share personal information like OTP, passwords, or bank details.\n"
+                            "Avoid transferring money without verifying the product and seller.\n"
+                            "Communicate through the app for better security.\n\n"
+                            "Proceed to chat if you agree to these terms.",
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      actions: [
+                        // Cancel Button with Gradient
+                        GradientButton(
+                          onPressed: () {
+                            Navigator.pop(context); // Close the dialog
+                          },
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.cancel, color: Colors.white),
+                              SizedBox(width: 5),
+                              Text(
+                                "Cancel",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ],
+                          ),
+                        ),
+                        // Proceed Button with Gradient
+                        GradientButton(
+                          onPressed: () {
+                            Navigator.pop(context); // Close the dialog
+                            // Navigate to the ChatPage after user agrees
+                            createChatRoom();
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ChatPage(
+                                  senderId: senderUserId!,
+                                  senderEmail: senderEmail!,
+                                  receiverUserID: reciverUserId!,
+                                  receiverUserEmail: reciverEmail!,
+                                ),
+                              ),
+                            );
+                          },
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.chat_bubble_outline, color: Colors.white),
+                              SizedBox(width: 5),
+                              Text(
+                                "Proceed",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    );
+                  },
                 );
+
               },
-              title: "Chat Now",
-              gradient: const LinearGradient(colors: [
-                AppColors.primaryColor,
-                AppColors.primaryTextColor,
-              ]),
-            )
+              title: "Chat now",
+              gradient: const LinearGradient(
+                colors: [
+                  AppColors.primaryColor,
+                  AppColors.primaryTextColor,
+                ],
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+              ),
+            ),
+
+
+
 
           ],
         ),
       ),
     );
   }
+
+
 }

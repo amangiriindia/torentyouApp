@@ -85,7 +85,7 @@ class ProductCard extends StatelessWidget {
                           alignment: Alignment.bottomLeft,
                           child: ButtonCustom(
                             callback: onRentNow,
-                            title: "View More",
+                            title: "View more",
                             gradient: const LinearGradient(
                               colors: [
                                 AppColors.primaryColor,
