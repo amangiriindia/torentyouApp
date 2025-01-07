@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'dart:async';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../consts.dart';
 import 'mainPage.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -17,9 +17,12 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   bool _showOtpField = false;
   String? otpValue;
-  int? userId; // Store the userId temporarily
+  int? userId;
   final _phoneNumberController = TextEditingController();
-  final _otpControllers = List.generate(6, (_) => TextEditingController()); // For OTP input
+  final _otpControllers = List.generate(6, (_) => TextEditingController());
+  bool _isOtpButtonDisabled = false;
+  int _secondsRemaining = 0;
+  Timer? _timer;
 
   Future<void> _sendOtp() async {
     final contact = _phoneNumberController.text;
@@ -31,38 +34,57 @@ class _LoginPageState extends State<LoginPage> {
         body: jsonEncode({'contact': contact}),
       );
       final responseData = jsonDecode(response.body);
-      print(response.statusCode);
-      print(response.body);
-      if (response.statusCode == 200 && responseData['success']) {
 
+      if (response.statusCode == 200 && responseData['success']) {
         final data = responseData['data'];
 
-          setState(() {
-            _showOtpField = true;
-            otpValue = data['otp'].toString(); // Save OTP temporarily
-            userId = data['id']; // Save userId temporarily
-          });
-          Fluttertoast.showToast(
-            msg: "OTP Send Sucessfully: $otpValue",
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.TOP,
-            backgroundColor: Colors.green,
-            textColor: Colors.white,
-          );
-        } else {
-          Fluttertoast.showToast(
-            msg: responseData['message'],
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.BOTTOM,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-          );
-        }
+        setState(() {
+          _showOtpField = true;
+          otpValue = data['otp'].toString();
+          userId = data['id'];
+          _startOtpTimer();
+        });
+
+        Fluttertoast.showToast(
+          msg: "OTP Sent Successfully",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.TOP,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+        );
+      } else {
+        Fluttertoast.showToast(
+          msg: responseData['message'],
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+        );
+      }
     } catch (e) {
       print('Error sending OTP: $e');
     }
   }
 
+  void _startOtpTimer() {
+    setState(() {
+      _isOtpButtonDisabled = true;
+      _secondsRemaining = 60;
+    });
+
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_secondsRemaining > 0) {
+        setState(() {
+          _secondsRemaining--;
+        });
+      } else {
+        _timer?.cancel();
+        setState(() {
+          _isOtpButtonDisabled = false;
+        });
+      }
+    });
+  }
 
   Future<void> _verifyOtp() async {
     final contact = _phoneNumberController.text;
@@ -89,8 +111,6 @@ class _LoginPageState extends State<LoginPage> {
           'otp': enteredOtp,
         }),
       );
-      print(response.statusCode);
-      print(response.body);
       final responseData = jsonDecode(response.body);
 
       if (response.statusCode == 200 && responseData['success']) {
@@ -102,9 +122,7 @@ class _LoginPageState extends State<LoginPage> {
           textColor: Colors.white,
         );
 
-        // Extract the user data from the response
         final userData = responseData['data'];
-        // Save user data to SharedPreferences
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setInt('userId', userData['id']);
         await prefs.setString('name', userData['name'] ?? '');
@@ -115,7 +133,6 @@ class _LoginPageState extends State<LoginPage> {
           context,
           MaterialPageRoute(builder: (context) => const MyHomePage()),
         );
-
       } else {
         Fluttertoast.showToast(
           msg: responseData['message'],
@@ -128,6 +145,12 @@ class _LoginPageState extends State<LoginPage> {
     } catch (e) {
       print('Error verifying OTP: $e');
     }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
   }
 
   @override
@@ -150,7 +173,10 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 10.0),
-                  child: Text("login or signup", style: TextStyle(fontSize: 16)),
+                  child: Text(
+                    "login or signup",
+                    style: TextStyle(fontSize: 16),
+                  ),
                 ),
                 Expanded(
                   child: Divider(thickness: 1, color: Colors.black),
@@ -191,7 +217,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               child: ElevatedButton(
-                onPressed: _sendOtp,
+                onPressed: _isOtpButtonDisabled ? null : _sendOtp,
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
                   backgroundColor: Colors.transparent,
@@ -200,9 +226,11 @@ class _LoginPageState extends State<LoginPage> {
                     borderRadius: BorderRadius.circular(30),
                   ),
                 ),
-                child: const Text(
-                  "Send Otp",
-                  style: TextStyle(color: Colors.white),
+                child: Text(
+                  _isOtpButtonDisabled
+                      ? "Resend OTP in $_secondsRemaining sec"
+                      : "Send OTP",
+                  style: const TextStyle(color: Colors.white),
                 ),
               ),
             ),
@@ -264,3 +292,4 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
+
