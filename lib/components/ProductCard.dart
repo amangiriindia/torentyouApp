@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '../consts.dart';
 import 'Button.dart';
 
@@ -47,7 +46,19 @@ class ProductCard extends StatelessWidget {
                   imageUrl,
                   width: double.infinity,
                   height: 180,
-                    fit: BoxFit.cover
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      width: double.infinity,
+                      height: 180,
+                      color: Colors.grey[200], // Optional background color for the icon
+                      child: const Icon(
+                        Icons.broken_image, // Broken image icon
+                        size: 50,
+                        color: Colors.grey, // Icon color
+                      ),
+                    );
+                  },
                 ),
                 Expanded(
                   child: Padding(
@@ -79,7 +90,6 @@ class ProductCard extends StatelessWidget {
                             ),
                           ],
                         ),
-                         // const Spacer(),
                         const SizedBox(height: 8.0),
                         Align(
                           alignment: Alignment.bottomLeft,
@@ -106,6 +116,7 @@ class ProductCard extends StatelessWidget {
     );
   }
 }
+
 
 
 // void _showEditDialog() {

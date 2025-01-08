@@ -146,6 +146,7 @@ class _ProductByCategoryState extends State<ProductByCategory> {
                   "${product['monthly_rental']}/Month" ?? 'N/A';
               final String category = widget.categoryName;
               final int productId = product['id']; // Get product ID
+              final String image_url =product['image'] ?? '';
 
               return ProductCard(
                 title: title,
@@ -158,6 +159,7 @@ class _ProductByCategoryState extends State<ProductByCategory> {
                     MaterialPageRoute(
                       builder: (context) => ProductDetailsPage(
                         productId: productId,
+                        image: image_url,
                         categoryId: product['category_id'],
                         subcategoryId: product['subcategory'],
                       ),

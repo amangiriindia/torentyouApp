@@ -18,8 +18,9 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> _navigateToNextScreen() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    final userId = prefs.getInt('userId');
 
+    final userId = prefs.getInt('userId');
+print(userId);
     Future.delayed(const Duration(seconds: 3), () {
       if (userId != null) {
         // Navigate to HomePage if userId exists

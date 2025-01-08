@@ -15,12 +15,14 @@ class ProductDetailsPage extends StatefulWidget {
   final int productId;
   final int categoryId;
   final int subcategoryId;
+  final String image;
 
   const ProductDetailsPage({
     Key? key,
     required this.productId,
     required this.categoryId,
     required this.subcategoryId,
+    required this.image,
   }) : super(key: key);
 
   @override
@@ -35,12 +37,14 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   int? reciverUserId;
   String? reciverEmail;
   String? productName;
+  late final String? imageurl;
 
   @override
   void initState() {
     super.initState();
     fetchProductDetails();
     _getUserData();
+    imageurl = widget.image;
   }
 
 
@@ -162,7 +166,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   void _shareProduct() async {
     final subject = 'Check out this ${product?['product_name']} on TorentYou!';
     final text = '${product?['short_description']} - ${product?['description']}';
-    final imageUrl = product?['image']; // Get the image URL
+    final imageUrl = widget.image; // Get the image URL
 
 
 
@@ -228,19 +232,42 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Image.network(
-                product?['image'] ?? '', // Default empty image URL
-                height: 250,
-                width: double.infinity,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  // Add error handling
-                  return const Icon(Icons.error); // Show error icon
-                },
+            GestureDetector(
+              onTap: () {
+                // Navigate to the full-screen image view
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => FullScreenImageView(imageUrl: imageurl),
+                  ),
+                );
+              },
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.network(
+                  imageurl ?? '', // Default empty image URL
+                  height: 250,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    // Show broken image icon with background
+                    return Container(
+                      height: 250,
+                      width: double.infinity,
+                      color: Colors.grey[200], // Optional background color
+                      child: const Icon(
+                        Icons.broken_image, // Broken image icon
+                        size: 50,
+                        color: Colors.grey, // Icon color
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
+
+
+
             const SizedBox(height: 16),
             Text(
               product?['product_name'] ?? 'No Title',
@@ -440,4 +467,45 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   }
 
 
+
+}
+
+class FullScreenImageView extends StatelessWidget {
+  final String? imageUrl;
+
+  const FullScreenImageView({Key? key, this.imageUrl}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Stack(
+        children: [
+          Center(
+            child: Image.network(
+              imageUrl ?? '',
+              fit: BoxFit.contain,
+              errorBuilder: (context, error, stackTrace) {
+                return const Icon(
+                  Icons.broken_image,
+                  size: 100,
+                  color: Colors.grey,
+                );
+              },
+            ),
+          ),
+          Positioned(
+            top: 40,
+            left: 16,
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
+              onPressed: () {
+                Navigator.pop(context); // Go back to the previous screen
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

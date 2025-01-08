@@ -111,7 +111,8 @@ class _CategoryWiseState extends State<CategoryWise> {
               final String imageUrl = product['image'] ?? '';
               final String price = "${product['monthly_rental']}/Month" ?? 'N/A';
               final String category = widget.categoryName;
-              final int productId = product['id']; // Get product ID
+              final int productId = product['id'];
+
 
               return ProductCard(
                 title: title,
@@ -126,6 +127,7 @@ class _CategoryWiseState extends State<CategoryWise> {
                         productId: productId,
                         categoryId: product['category_id'],
                         subcategoryId: product['subcategory'],
+                        image: imageUrl,
                       ),
                     ),
                   );
