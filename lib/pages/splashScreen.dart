@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import 'mainPage.dart';
 import 'onBoardingScreen.dart';
-
 
 class SplashScreen extends StatefulWidget {
   @override
@@ -12,16 +13,31 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _navigateToOnboarding();
+    _navigateToNextScreen();
   }
 
-  void _navigateToOnboarding() {
+  Future<void> _navigateToNextScreen() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getInt('userId');
+
     Future.delayed(const Duration(seconds: 3), () {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => OnBoardingScreen(onDone: () {  },),
-        ),
-      );
+      if (userId != null) {
+        // Navigate to HomePage if userId exists
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => const MyHomePage(),
+          ),
+        );
+      } else {
+        // Navigate to OnBoardingPage if userId is null
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => OnBoardingScreen(
+              onDone: () {},
+            ),
+          ),
+        );
+      }
     });
   }
 

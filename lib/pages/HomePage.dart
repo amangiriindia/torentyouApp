@@ -49,15 +49,18 @@ class _HomePageState extends State<HomePage> {
           categoryName: 'Hotel',categoryId: 7,
         ),
         ProductByCategory(
-          categoryName: 'Hotel',categoryId: 7,
+          categoryName: 'Furniture',categoryId: 5,
         ),
 
         ProductByCategory(
-          categoryName: 'Hotel',categoryId: 7,
+          categoryName: 'Vehicle',categoryId: 4,
         ),
 
         ProductByCategory(
-          categoryName: 'Hotel',categoryId: 7,
+          categoryName: 'Clothes',categoryId: 9,
+        ),
+        ProductByCategory(
+          categoryName: 'Appliances',categoryId: 6,
         ),
       ],
     );

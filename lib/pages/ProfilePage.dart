@@ -203,8 +203,11 @@ class _ProfilePageState extends State<ProfilePage> {
                         _ProfileOptionItem(
                           icon: Icons.logout,
                           text: 'Logout',
-                          onTap: () {
-                            Navigator.push(
+                          onTap: () async {
+                            SharedPreferences prefs = await SharedPreferences.getInstance();
+                            await prefs.clear(); // Clears all stored preferences
+
+                            Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => SplashScreen(),

@@ -209,6 +209,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
             const SizedBox(height: 20),
+
             Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(30),
@@ -217,7 +218,9 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               child: ElevatedButton(
-                onPressed: _isOtpButtonDisabled ? null : _sendOtp,
+                onPressed: _isOtpButtonDisabled ? null : () async {
+                  await _sendOtp();
+                },
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
                   backgroundColor: Colors.transparent,
@@ -234,6 +237,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
             ),
+
             if (_showOtpField) ...[
               const SizedBox(height: 30),
               Row(
