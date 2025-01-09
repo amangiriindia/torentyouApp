@@ -1,10 +1,11 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     <!-- Location permissions -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <!-- Remove this if background location is not required -->
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
-
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <!-- Internet permission for network operations -->
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -52,6 +53,15 @@
         <meta-data android:name="com.phonepe.android.sdk.isSimulator" android:value="true"/>
         <meta-data android:name="com.phonepe.android.sdk.MerchantId" android:value="PGTESTPAYUAT"/>
 <!--        <meta-data android:name="com.phonepe.android.sdk.AppId" android:value="appId"/>-->
+
+        <service
+            android:name="com.google.firebase.messaging.FirebaseMessagingService"
+            android:exported="true"
+            tools:replace="android:exported">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
 
     </application>
 

@@ -22,7 +22,7 @@ class _SplashScreenState extends State<SplashScreen> {
     final userId = prefs.getInt('userId');
 print(userId);
     Future.delayed(const Duration(seconds: 3), () {
-      if (userId != null) {
+      if (userId == null) {
         // Navigate to HomePage if userId exists
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(

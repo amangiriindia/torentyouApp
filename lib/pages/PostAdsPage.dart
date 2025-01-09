@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import '../components/google_map_helper.dart';
 import '../consts.dart';
 import '../pageutills/myAdspage.dart';
+import '../service/google_map_helper.dart';
 
 class PostAdsPage extends StatelessWidget {
   const PostAdsPage({Key? key}) : super(key: key);
