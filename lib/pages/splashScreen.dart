@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:try_test/constant/user_constant.dart';
 
 import 'mainPage.dart';
 import 'onBoardingScreen.dart';
@@ -17,12 +17,9 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _navigateToNextScreen() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    final userId = prefs.getInt('userId');
-print(userId);
+   
     Future.delayed(const Duration(seconds: 3), () {
-      if (userId == null) {
+      if (UserConstant.USER_ID != null) {
         // Navigate to HomePage if userId exists
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(

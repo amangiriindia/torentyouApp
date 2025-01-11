@@ -32,6 +32,8 @@ dependencies:
   sqflite: ^2.3.3+1
   flutter_local_notifications: ^18.0.1
   firebase_messaging: ^15.2.0
+  permission_handler: ^11.3.1
+  chat_bubbles: ^1.7.0
 
 
 

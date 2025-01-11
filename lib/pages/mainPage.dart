@@ -4,8 +4,8 @@ import 'package:line_icons/line_icons.dart';
 
 import '../components/sideDrawer.dart';
 import '../consts.dart';
+import '../pageutills/notification_screen.dart';
 import 'HomePage.dart';
-import 'NotificationsPage.dart';
 import 'PostAdsPage.dart';
 import 'ProfilePage.dart';
 
@@ -23,7 +23,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final List<Widget> _pages = [
     const HomePage(),
     const PostAdsPage(),
-    const NotificationsPage(),
+    const NotificationScreen(),
   ];
 
 

@@ -12,7 +12,8 @@ class AppColors {
 
   // Text Colors
   static const Color primaryTextColor = Color(0xff09285a); // Dark blue
-  static const Color secondaryTextColor = Colors.grey; // For less important text
+  static const Color secondaryTextColor =
+      Colors.grey; // For less important text
 
   // Additional Colors
   static const Color errorColor = Colors.red;
@@ -30,12 +31,7 @@ class AppColors {
 }
 
 class AppConstant {
-   // static const String API_URL = 'https://trytest-xcqt.onrender.com/';
+  // static const String API_URL = 'https://trytest-xcqt.onrender.com/';
   static const String MAP_KEY = 'AIzaSyBd98NLneHO0QtwIvzfaLrkG4HMU1MdD_E';
-  static const String API_URL = 'http://192.168.1.30:8080/';
-
-
-
-
+  static const String API_URL = 'http://192.168.1.11:8080/';
 }
-
