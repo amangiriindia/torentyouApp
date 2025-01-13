@@ -4,7 +4,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:try_test/constant/user_constant.dart';
 
-
 import '../../consts.dart';
 
 class ApiService {
@@ -46,7 +45,8 @@ class ApiService {
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'contact': contact}),
       );
-
+      print(response.statusCode);
+      print(response.body);
       final responseData = jsonDecode(response.body);
       if (response.statusCode == 200 && responseData['success']) {
         Fluttertoast.showToast(
@@ -123,15 +123,17 @@ class ApiService {
     }
   }
 
-   // Function to fetch product details
+  // Function to fetch product details
   Future<Map<String, dynamic>?> fetchProductDetails(int productId) async {
-    final url = '${AppConstant.API_URL}api/v1/product/single-product/$productId';
+    final url =
+        '${AppConstant.API_URL}api/v1/product/single-product/$productId';
     try {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
         return jsonDecode(response.body);
       } else {
-        print('Failed to fetch product details. Status Code: ${response.statusCode}');
+        print(
+            'Failed to fetch product details. Status Code: ${response.statusCode}');
         return null;
       }
     } catch (e) {
@@ -153,7 +155,8 @@ class ApiService {
         print('Chat room created successfully.');
         return true;
       } else {
-        print('Failed to create chat room. Status code: ${response.statusCode}');
+        print(
+            'Failed to create chat room. Status code: ${response.statusCode}');
         return false;
       }
     } catch (e) {
@@ -179,6 +182,4 @@ class ApiService {
       return null;
     }
   }
-
-  
 }
