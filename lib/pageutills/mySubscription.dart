@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:try_test/constant/user_constant.dart';
 import 'dart:convert';
 import '../consts.dart';
 
@@ -29,8 +29,8 @@ class _MySubscriptionPageState extends State<MySubscriptionPage> {
   }
 
   Future<void> _getUserData() async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
-    userId = pref.getInt('userId') ?? 1; // Default value if userId is not found
+
+    userId = UserConstant.USER_ID ?? 1; // Default value if userId is not found
     setState(() {}); // Update UI if needed
   }
 

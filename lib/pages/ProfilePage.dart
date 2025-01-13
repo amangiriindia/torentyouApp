@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:try_test/constant/user_constant.dart';
 import 'package:try_test/pages/settingsPage.dart';
 import 'package:try_test/pages/splashScreen.dart';
 import '../chat/chat_list_lookingfor_screen.dart';
@@ -31,8 +31,8 @@ class _ProfilePageState extends State<ProfilePage> {
     _getUserData();
   }
   Future<void> _getUserData() async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
-    userId = pref.getInt('userId') ?? 1;
+    
+    userId = UserConstant.USER_ID ?? 1;
     setState(() {}); // Call setState to update the UI if `id` is being used there
   }
   @override
@@ -204,8 +204,9 @@ class _ProfilePageState extends State<ProfilePage> {
                           icon: Icons.logout,
                           text: 'Logout',
                           onTap: () async {
-                            SharedPreferences prefs = await SharedPreferences.getInstance();
-                            await prefs.clear(); // Clears all stored preferences
+                            
+
+                            UserConstant.clearUserData();
 
                             Navigator.pushReplacement(
                               context,

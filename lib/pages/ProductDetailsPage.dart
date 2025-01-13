@@ -1,15 +1,15 @@
+// ProductDetailsPage.dart
+
+import 'dart:ffi';
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:try_test/constant/user_constant.dart';
 import '../chat/chat_screen.dart';
 import '../components/Button.dart';
 import '../components/grdient_button.dart';
+import '../components/product_details_full_screen.dart';
 import '../consts.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-
-import '../pageutills/chat_alrert_box.dart';
-import 'ChatScreen.dart';
+import '../service/api_service.dart';
 
 class ProductDetailsPage extends StatefulWidget {
   final int productId;
@@ -38,6 +38,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   String? reciverEmail;
   String? productName;
   late final String? imageurl;
+  final ApiService _apiService = ApiService(); // Instance of ApiService
 
   @override
   void initState() {
@@ -47,128 +48,60 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     imageurl = widget.image;
   }
 
-
-
-  Future<void> createChatRoom ()async {
-    // Define the API URL (replace with your actual API endpoint)
-    const String apiUrl = '${AppConstant.API_URL}api/v1/chat/create-chat-room';
-
-    try {
-      // Prepare the request payload
-      final Map<String, dynamic> requestData = {
-        'chat_room_id': '${senderUserId}_${reciverUserId}',
-        'sender_id': senderUserId,
-        'sender_email': senderEmail,
-        'receiver_id': reciverUserId,
-        'receiver_email': reciverEmail,
-        'product_id': widget.productId,
-        'product_name': productName,
-      };
-
-      // Send the POST request
-      final  response = await http.post(
-        Uri.parse(apiUrl),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode(requestData),
-      );
-      print(response.body);
-      if (response.statusCode == 201) {
-        // If the server returns a 201 CREATED response
-        print('Chat room created successfully.');
-      } else {
-        // If the server returns an error response
-        print('Failed to create chat room. Status code: ${response.statusCode}');
-        print('Response body: ${response.body}');
-      }
-    } catch (e) {
-      // Handle any errors
-      print('Error occurred: $e');
-    }
-  }
-
-
-  Future<void> _getUserData() async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
-    senderUserId = pref.getInt('userId') ?? 0;
-    senderEmail = pref.getString('email') ?? '';
-    setState(() {}); // Call setState to update the UI if `id` is being used there
-  }
-
-  Future<void> getReciverEmail(int reciverId) async {
-    final url = '${AppConstant.API_URL}api/v1/seller/single-seller/$reciverId';
-
-    try {
-      // Making GET request
-      final response = await http.get(Uri.parse(url));
-
-      // Print response body and status code for debugging
-      print('Response Body: ${response.body}');
-      print('Status Code: ${response.statusCode}');
-
-      // Check if status code is 200 (success)
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-
-        // Check if 'email' field exists in the response
-        if (data != null && data['email'] != null) {
-          reciverEmail = data['email']; // Set the email
-          print('Reciver Email: $reciverEmail');
-        } else {
-          print("Email not found in response data");
-        }
-      } else {
-        // Handle cases where the status code is not 200
-        print("Failed to fetch data. Status Code: ${response.statusCode}");
-      }
-    } catch (e) {
-      // Print the error message for debugging
-      print("Error occurred: $e");
-    }
-  }
-
-
   Future<void> fetchProductDetails() async {
-    final url = '${AppConstant.API_URL}api/v1/product/single-product/${widget.productId}';
-    try {
-      final response = await http.get(Uri.parse(url));
-      print(response.body);
-      print(response.statusCode);
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        setState(() {
-          product = data;
-          isLoading = false;
-          reciverUserId = product?['seller_id'];
-          productName = product?['product_name'];
+    final productData = await _apiService.fetchProductDetails(widget.productId);
+    if (productData != null) {
+      setState(() {
+        product = productData;
+        isLoading = false;
+        reciverUserId = product?['seller_id'];
+        productName = product?['product_name'];
+      });
 
-        });
-
-        if(reciverUserId!=null){
-          getReciverEmail(reciverUserId!);
-        }
-      } else {
-        // Handle the error
+      if (reciverUserId != null) {
+        final email = await _apiService.getReceiverEmail(reciverUserId!);
         setState(() {
-          isLoading = false;
+          reciverEmail = email;
         });
       }
-    } catch (e) {
-      // Handle the error
+    } else {
       setState(() {
         isLoading = false;
       });
-      print('Error: $e');
     }
+  }
+
+  Future<void> createChatRoom() async {
+    // Prepare the request data
+    final requestData = {
+      'chat_room_id': '${senderUserId}_${reciverUserId}',
+      'sender_id': senderUserId,
+      'sender_email': senderEmail,
+      'receiver_id': reciverUserId,
+      'receiver_email': reciverEmail,
+      'product_id': widget.productId,
+      'product_name': productName,
+    };
+    final success = await _apiService.createChatRoom(requestData);
+    if (success) {
+      print('Chat room created successfully.');
+    } else {
+      print('Failed to create chat room.');
+    }
+  }
+
+  Future<void> _getUserData() async {
+   
+    senderUserId = UserConstant.USER_ID?? 0;
+    senderEmail = UserConstant.EMAIL ?? '';
+    setState(() {});
   }
 
   void _shareProduct() async {
     final subject = 'Check out this ${product?['product_name']} on TorentYou!';
-    final text = '${product?['short_description']} - ${product?['description']}';
-    final imageUrl = widget.image; // Get the image URL
-
-
+    final text =
+        '${product?['short_description']} - ${product?['description']}';
+    final imageUrl = widget.image;
 
     try {
       await Share.share(
@@ -178,7 +111,6 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       );
     } catch (error) {
       print('Error sharing product: $error');
-      // Optionally show an error message to the user
     }
   }
 
@@ -191,13 +123,14 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           title: const Padding(
             padding: EdgeInsets.all(20.0),
             child: Image(
-              image: AssetImage('assets/logo.png'),  // Replace with your logo file path
-              width: 110,  // Adjust size as needed
+              image: AssetImage('assets/logo.png'),
+              width: 110,
               height: 110,
             ),
           ),
           bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(5.0),
+          //  preferredSize: fromHeight(5.0),
+          preferredSize: Magnifier.kDefaultMagnifierSize,
             child: Container(
               height: 1.0,
               color: AppColors.dividerColor.withOpacity(0.5),
@@ -214,13 +147,14 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
         title: const Padding(
           padding: EdgeInsets.all(20.0),
           child: Image(
-            image: AssetImage('assets/logo.png'),  // Replace with your logo file path
-            width: 110,  // Adjust size as needed
+            image: AssetImage('assets/logo.png'),
+            width: 110,
             height: 110,
           ),
         ),
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(5.0),
+        //  preferredSize: const Size.fromHeight(5.0),
+        preferredSize: Magnifier.kDefaultMagnifierSize,
           child: Container(
             height: 1.0,
             color: AppColors.dividerColor.withOpacity(0.5),
@@ -238,36 +172,34 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => FullScreenImageView(imageUrl: imageurl),
+                    builder: (context) =>
+                        FullScreenImageView(imageUrl: imageurl),
                   ),
                 );
               },
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
                 child: Image.network(
-                  imageurl ?? '', // Default empty image URL
+                  imageurl ?? '',
                   height: 250,
                   width: double.infinity,
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
-                    // Show broken image icon with background
                     return Container(
                       height: 250,
                       width: double.infinity,
-                      color: Colors.grey[200], // Optional background color
+                      color: Colors.grey[200],
                       child: const Icon(
-                        Icons.broken_image, // Broken image icon
+                        Icons.broken_image,
                         size: 50,
-                        color: Colors.grey, // Icon color
+                        color: Colors.grey,
                       ),
                     );
                   },
                 ),
               ),
             ),
-
-
-
+            const SizedBox(height: 16),
             const SizedBox(height: 16),
             Text(
               product?['product_name'] ?? 'No Title',
@@ -367,7 +299,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
               ),
             ),
 
-            ButtonCustom(
+             ButtonCustom(
               callback: () {
                 // Show alert dialog before navigating
                 showDialog(
@@ -424,6 +356,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                                   senderEmail: senderEmail!,
                                   receiverUserID: reciverUserId!,
                                   receiverUserEmail: reciverEmail!,
+                              productName: productName!, productImage: widget.image,
                                 ),
                               ),
                             );
@@ -457,54 +390,8 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
               ),
             ),
 
-
-
-
           ],
         ),
-      ),
-    );
-  }
-
-
-
-}
-
-class FullScreenImageView extends StatelessWidget {
-  final String? imageUrl;
-
-  const FullScreenImageView({Key? key, this.imageUrl}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: Stack(
-        children: [
-          Center(
-            child: Image.network(
-              imageUrl ?? '',
-              fit: BoxFit.contain,
-              errorBuilder: (context, error, stackTrace) {
-                return const Icon(
-                  Icons.broken_image,
-                  size: 100,
-                  color: Colors.grey,
-                );
-              },
-            ),
-          ),
-          Positioned(
-            top: 40,
-            left: 16,
-            child: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.white),
-              onPressed: () {
-                Navigator.pop(context); // Go back to the previous screen
-              },
-            ),
-          ),
-        ],
       ),
     );
   }

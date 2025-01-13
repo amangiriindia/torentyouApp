@@ -1,6 +1,7 @@
 import 'dart:convert'; // For encoding data
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:try_test/constant/user_constant.dart';
 import '../components/Button.dart';
 import '../consts.dart';
 import 'package:http/http.dart' as http; // For making HTTP requests
@@ -33,13 +34,13 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
 
   // Fetch user data from SharedPreferences
   Future<void> _loadUserData() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    
     setState(() {
-      _nameController.text = prefs.getString('name') ?? 'Enter your name';
-      _contactController.text = prefs.getString('contact') ?? 'Enter your Phone Number';
-      _aboutController.text = prefs.getString('userAbout') ?? 'About text here';
-      _emailController.text = prefs.getString('email') ?? 'Enter your email';
-      userId = prefs.getInt('userId') ?? 0;
+      _nameController.text = UserConstant.NAME ?? 'Enter your name';
+      _contactController.text = UserConstant.CONTACT ?? 'Enter your Phone Number';
+      _aboutController.text = UserConstant.ABOUT ?? 'About text here';
+      _emailController.text = UserConstant.NAME ?? 'Enter your email';
+      userId = UserConstant.USER_ID ?? 0;
     });
   }
 

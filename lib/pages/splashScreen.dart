@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:try_test/constant/user_constant.dart';
-
 import 'mainPage.dart';
 import 'onBoardingScreen.dart';
 
@@ -13,13 +12,16 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
+    print(UserConstant.USER_ID);
+    print(UserConstant.NAME);
     _navigateToNextScreen();
   }
 
   Future<void> _navigateToNextScreen() async {
-   
+    print(UserConstant.USER_ID);
+    print(UserConstant.NAME);
     Future.delayed(const Duration(seconds: 3), () {
-      if (UserConstant.USER_ID != null) {
+      if (UserConstant.USER_ID != null && UserConstant.USER_ID != 0) {
         // Navigate to HomePage if userId exists
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
@@ -44,7 +46,8 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
-        child: Image.asset('assets/logo.png', width: 200, height: 350), // Adjust size as needed
+        child: Image.asset('assets/logo.png',
+            width: 200, height: 350), // Adjust size as needed
       ),
     );
   }

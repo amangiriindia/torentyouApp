@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:chat_bubbles/chat_bubbles.dart';
-import 'package:try_test/consts.dart';
 import 'chat_service.dart';
 
 class ChatPage extends StatefulWidget {
@@ -9,6 +8,8 @@ class ChatPage extends StatefulWidget {
   final String senderEmail;
   final String receiverUserEmail;
   final int receiverUserID;
+  final String productName;
+  final String productImage;
 
   const ChatPage({
     super.key,
@@ -16,6 +17,8 @@ class ChatPage extends StatefulWidget {
     required this.senderEmail,
     required this.receiverUserEmail,
     required this.receiverUserID,
+    required this.productName,
+    required this.productImage,
   });
 
   @override
@@ -26,80 +29,68 @@ class _ChatPageState extends State<ChatPage> {
   final TextEditingController _messageController = TextEditingController();
   final ChatService _chatService = ChatService();
 
-  void sendMessage() async {
-    if (_messageController.text.isNotEmpty) {
+  void sendMessage(String message) async {
+    if (message.isNotEmpty) {
       await _chatService.sendMessage(
         widget.senderId.toString(),
         widget.senderEmail,
         widget.receiverUserID.toString(),
-        _messageController.text,
+        message,
       );
       _messageController.clear();
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: 
-      PreferredSize(
-        preferredSize: Size.fromHeight(60),
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [AppColors.primaryColor, AppColors.primaryTextColor], // Define your gradient colors here
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-          child: AppBar(
-            backgroundColor: Colors.transparent, // Make the background transparent
-            title: Text(
-              widget.receiverUserEmail,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            centerTitle: true,
-            elevation: 0, // No shadow effect
-            actions: [
-              IconButton(
-                icon: Icon(Icons.more_vert, color: Colors.white),
-                onPressed: () {
-                  // Add any additional actions (e.g., view profile)
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
+  Widget _buildSuggestedQuestions() {
+    final suggestions = [
+      "Is the product available?",
+      "What is the rental cost?",
+      "What is the deposit amount?",
+      "Is delivery available?",
+    ];
 
-      body: Column(
-        children: [
-          Expanded(
-            child: _buildMessageList(),
-          ),
-          _buildMessageInput(),
-        ],
-      ),
+    return Wrap(
+      spacing: 8,
+      children: suggestions
+          .map((text) => GestureDetector(
+                onTap: () => sendMessage(text),
+                child: Chip(
+                  label: Text(
+                    text,
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  backgroundColor: Colors.blueAccent,
+                ),
+              ))
+          .toList(),
     );
   }
 
   Widget _buildMessageItem(DocumentSnapshot document) {
     Map<String, dynamic> data = document.data() as Map<String, dynamic>;
-
     bool isSender = data['senderId'] == widget.senderId;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      child: BubbleSpecialTwo(
-        text: data['message'],
-        isSender: isSender,
-        color: isSender ? AppColors.primaryColor : AppColors.primaryTextColor,
-        textStyle: const TextStyle(fontSize: 16, color: Colors.white),
-        tail: true,
+
+    return Align(
+      alignment: isSender ? Alignment.centerRight : Alignment.centerLeft,
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+        decoration: BoxDecoration(
+          color: isSender ? Colors.blue : Colors.grey.shade300,
+          borderRadius: BorderRadius.only(
+            topLeft: const Radius.circular(16),
+            topRight: const Radius.circular(16),
+            bottomLeft: Radius.circular(isSender ? 16 : 0),
+            bottomRight: Radius.circular(isSender ? 0 : 16),
+          ),
+        ),
+        child: Text(
+          data['message'],
+          style: TextStyle(
+            color: isSender ? Colors.white : Colors.black87,
+            fontSize: 16,
+          ),
+        ),
       ),
     );
   }
@@ -118,7 +109,7 @@ class _ChatPageState extends State<ChatPage> {
         }
 
         return ListView(
-          reverse: true, // Start from the bottom (latest messages)
+          reverse: true,
           children: snapshot.data!.docs
               .map((document) => _buildMessageItem(document))
               .toList(),
@@ -130,57 +121,78 @@ class _ChatPageState extends State<ChatPage> {
   Widget _buildMessageInput() {
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Row(
+      child: Column(
         children: [
-          Expanded(
-            child: TextField(
-              controller: _messageController,
-              decoration: InputDecoration(
-                filled: true,
-                hintText: 'Type a message...',
-                fillColor: Colors.grey.shade200,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30),
-                  borderSide: BorderSide.none,
-                ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 8.0),
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    AppColors.primaryColor,
-                    AppColors.primaryTextColor,
-                  ], // You can change these colors as per your requirement
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                shape: BoxShape.circle,
-              ),
-              child: ClipOval(
-                child: Material(
-                  color: Colors
-                      .transparent, // Make sure the button color is transparent to show the gradient
-                  child: InkWell(
-                    onTap:
-                        sendMessage, // Ensure the tap functionality is intact
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Icon(
-                        Icons.send,
-                        color: Colors.white,
-                        size: 24,
-                      ),
+          _buildSuggestedQuestions(),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _messageController,
+                  decoration: InputDecoration(
+                    filled: true,
+                    hintText: 'Type a message...',
+                    fillColor: Colors.grey.shade200,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: BorderSide.none,
                     ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                   ),
                 ),
               ),
+              const SizedBox(width: 8),
+              GestureDetector(
+                onTap: () => sendMessage(_messageController.text),
+                child: CircleAvatar(
+                  radius: 24,
+                  backgroundColor: Colors.blueAccent,
+                  child: const Icon(Icons.send, color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        elevation: 0,
+        title: Row(
+          children: [
+            CircleAvatar(
+              backgroundImage: NetworkImage(widget.productImage),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                widget.productName,
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+        centerTitle: true,
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.deepPurple, Colors.indigo],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
           ),
+        ),
+      ),
+      body: Column(
+        children: [
+          Expanded(child: _buildMessageList()),
+          _buildMessageInput(),
         ],
       ),
     );

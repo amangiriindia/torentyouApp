@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:try_test/pages/payment_test.dart';
+import 'package:try_test/payment/payment_test.dart';
 import 'package:try_test/service/database_helper.dart';
 import 'components/test_google_map.dart';
 import 'constant/user_constant.dart';

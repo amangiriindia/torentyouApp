@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:try_test/constant/user_constant.dart';
 import '../consts.dart';
+import 'splashScreen.dart';
 
 class SettingsPage extends StatefulWidget {
   final String heading;
@@ -100,6 +102,13 @@ class _SettingsPageState extends State<SettingsPage> {
             trailing: const Icon(Icons.arrow_forward_ios),
             onTap: () {
               // Logout Functionality
+               UserConstant.clearUserData();
+                 Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => SplashScreen(),
+                              ),
+                            );
             },
           ),
           const SizedBox(height: 20),

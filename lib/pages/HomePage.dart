@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-
-import '../consts.dart';
 import '../pageutills/homeRentalCategory.dart';
 import '../pageutills/productByCategory.dart';
 import 'home/slider.dart'; // Import the new widget

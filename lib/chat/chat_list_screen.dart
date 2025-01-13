@@ -178,7 +178,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
                 senderId: userId,
                 senderEmail: senderEmail,
                 receiverUserID: receiverUserId,
-                receiverUserEmail: otherUserEmail,
+                receiverUserEmail: otherUserEmail, productName: '', productImage: '',
               ),
             ),
           );

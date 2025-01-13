@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:try_test/constant/user_constant.dart';
 import 'package:try_test/consts.dart';
 
 class NotificationsPage extends StatefulWidget {
@@ -23,15 +23,17 @@ class _NotificationsPageState extends State<NotificationsPage> {
   }
 
   Future<void> _loadUserData() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    print(UserConstant.USER_ID);
     setState(() {
-      userId = prefs.getInt('userId') ?? 0;
+      userId = UserConstant.USER_ID ?? 0;
     });
   }
+
   Future<List<Notification>> fetchNotifications() async {
     try {
       final response = await http.get(
-        Uri.parse('${AppConstant.API_URL}api/v1/notification/user-all-notification/$userId'),
+        Uri.parse(
+            '${AppConstant.API_URL}api/v1/notification/user-all-notification/$userId'),
       );
 
       print('Status Code: ${response.statusCode}');
@@ -40,19 +42,20 @@ class _NotificationsPageState extends State<NotificationsPage> {
       if (response.statusCode == 200) {
         List<dynamic> data = json.decode(response.body);
         return data.map((json) => Notification.fromJson(json)).toList();
-      } else if (response.statusCode == 404){
+      } else if (response.statusCode == 404) {
         print(response.statusCode);
         throw Exception('No notification found');
-      }else {
+      } else {
         print('Error Response Body: ${response.body}');
-        throw Exception('Failed to fetch notifications: ${response.statusCode}');
+        throw Exception(
+            'Failed to fetch notifications: ${response.statusCode}');
       }
     } catch (e) {
       print('Error occurred: $e');
-      throw Exception('An unexpected error occurred while fetching notifications.');
+      throw Exception(
+          'An unexpected error occurred while fetching notifications.');
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -127,7 +130,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
     );
   }
 
-  Widget _buildNotificationCard(BuildContext context, {
+  Widget _buildNotificationCard(
+    BuildContext context, {
     required Color color,
     required IconData icon,
     required String heading,

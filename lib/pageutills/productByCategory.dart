@@ -143,7 +143,7 @@ class _ProductByCategoryState extends State<ProductByCategory> {
               final String title = product['product_name'] ?? 'Unknown';
               final String imageUrl = product['image'] ?? '';
               final String price =
-                  "${product['monthly_rental']}/Month" ?? 'N/A';
+                  "${product['monthly_rental']}/Month";
               final String category = widget.categoryName;
               final int productId = product['id']; // Get product ID
               final String image_url =product['image'] ?? '';

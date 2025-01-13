@@ -2,9 +2,8 @@ import 'dart:convert'; // For decoding JSON response
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:try_test/constant/user_constant.dart';
 import '../consts.dart'; // Assuming your color definitions are here
-import '../pages/PostAdsPage.dart';
 import '../pages/Postadswithnavbar.dart';
 
 class MyAdsPage extends StatefulWidget {
@@ -27,8 +26,8 @@ class _MyAdsPageState extends State<MyAdsPage> {
   }
 
   Future<void> _getUserData() async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
-    userId = pref.getInt('userId') ?? 6;
+  
+    userId = UserConstant.USER_ID ?? 6;
     setState(() {}); // Call setState to update the UI if `id` is being used there
     if(userId != null){
       fetchMyAds(); // Fetch ads when the widget initializes

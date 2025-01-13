@@ -4,7 +4,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:try_test/constant/user_constant.dart';
 import '../consts.dart';
 import '../pageutills/myAdspage.dart';
 import '../service/google_map_helper.dart';
@@ -43,7 +43,8 @@ class _PostAdsContentState extends State<PostAdsContent> {
   String duration = "";
 
   final List<String> days = List.generate(31, (index) => "${index + 1} day");
-  final List<String> months = List.generate(12, (index) => "${index + 1} month");
+  final List<String> months =
+      List.generate(12, (index) => "${index + 1} month");
 
   // Controllers for input fields
   final TextEditingController productNameController = TextEditingController();
@@ -51,7 +52,8 @@ class _PostAdsContentState extends State<PostAdsContent> {
   final TextEditingController monthlyRentalController = TextEditingController();
   final TextEditingController depositController = TextEditingController();
   final TextEditingController tagsController = TextEditingController();
-  final TextEditingController shortDescriptionController = TextEditingController();
+  final TextEditingController shortDescriptionController =
+      TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController stockController = TextEditingController();
 
@@ -63,11 +65,11 @@ class _PostAdsContentState extends State<PostAdsContent> {
   }
 
   Future<void> _getId() async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
-    userId = pref.getInt('userId') ?? 1;
-    setState(() {}); // Call setState to update the UI if `id` is being used there
+    print(UserConstant.NAME);
+    userId = UserConstant.USER_ID ?? 1;
+    setState(
+        () {}); // Call setState to update the UI if `id` is being used there
   }
-
 
   @override
   void dispose() {
@@ -82,7 +84,8 @@ class _PostAdsContentState extends State<PostAdsContent> {
     super.dispose();
   }
 
-  Future<void> _pickImages() async { // Change this method to pick multiple images
+  Future<void> _pickImages() async {
+    // Change this method to pick multiple images
     final List<XFile>? selectedImages = await _picker.pickMultiImage();
     if (selectedImages != null) {
       setState(() {
@@ -90,7 +93,6 @@ class _PostAdsContentState extends State<PostAdsContent> {
       });
     }
   }
-
 
   // Call this method to update latitude and longitude
   Future<void> updateCoordinates() async {
@@ -118,7 +120,8 @@ class _PostAdsContentState extends State<PostAdsContent> {
         final data = jsonDecode(response.body);
         if (data['success']) {
           setState(() {
-            categories = List<Map<String, dynamic>>.from(data['results'].map((category) {
+            categories =
+                List<Map<String, dynamic>>.from(data['results'].map((category) {
               return {
                 'id': category['id'] ?? 0,
                 'name': category['c_name'],
@@ -136,14 +139,16 @@ class _PostAdsContentState extends State<PostAdsContent> {
   }
 
   Future<void> fetchSubCategories(String categoryId) async {
-    final url = '${AppConstant.API_URL}api/v1/subcategory/single-subcategory/$categoryId';
+    final url =
+        '${AppConstant.API_URL}api/v1/subcategory/single-subcategory/$categoryId';
     try {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data['success']) {
           setState(() {
-            subcategories = List<Map<String, dynamic>>.from(data['data'].map((subcategory) {
+            subcategories =
+                List<Map<String, dynamic>>.from(data['data'].map((subcategory) {
               return {
                 'id': subcategory['id'],
                 'name': subcategory['subcategory_name'],
@@ -167,7 +172,8 @@ class _PostAdsContentState extends State<PostAdsContent> {
 
       try {
         FirebaseStorage storage = FirebaseStorage.instance;
-        String fileName = DateTime.now().millisecondsSinceEpoch.toString() + '.jpg';
+        String fileName =
+            DateTime.now().millisecondsSinceEpoch.toString() + '.jpg';
         Reference ref = storage.ref().child('ads_images/$fileName');
         UploadTask uploadTask = ref.putFile(File(image.path));
 
@@ -185,10 +191,10 @@ class _PostAdsContentState extends State<PostAdsContent> {
     String location = await GoogleMapHelper.getCurrentLocation();
     updateCoordinates();
     setState(() {
-      locationController.text = location; // Update the text property of the controller
+      locationController.text =
+          location; // Update the text property of the controller
     });
   }
-
 
   Future<void> postProduct() async {
     if (addLatitude == null && addLongitude == null) {
@@ -203,7 +209,6 @@ class _PostAdsContentState extends State<PostAdsContent> {
         depositController.text.isEmpty ||
         stockController.text.isEmpty ||
         packageOption == null) {
-
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fill all required fields')),
       );
@@ -282,7 +287,8 @@ class _PostAdsContentState extends State<PostAdsContent> {
         }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to post product: ${response.statusCode}')),
+          SnackBar(
+              content: Text('Failed to post product: ${response.statusCode}')),
         );
       }
     } catch (e) {
@@ -297,7 +303,6 @@ class _PostAdsContentState extends State<PostAdsContent> {
       duration = "${selectedMonth ?? ""} ${selectedDay ?? ""}".trim();
     });
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -316,65 +321,71 @@ class _PostAdsContentState extends State<PostAdsContent> {
             const SizedBox(height: 20),
             const _Label(text: 'Category*'),
             DropdownButtonFormField<String>(
-              value: selectedCategory != null && categories.any((category) => category['id'].toString() == selectedCategory)
+              value: selectedCategory != null &&
+                      categories.any((category) =>
+                          category['id'].toString() == selectedCategory)
                   ? selectedCategory
                   : null,
               items: categories.isEmpty
                   ? [
-                const DropdownMenuItem(
-                  value: null,
-                  child: Text('No categories available'),
-                ),
-              ]
+                      const DropdownMenuItem(
+                        value: null,
+                        child: Text('No categories available'),
+                      ),
+                    ]
                   : categories.map((category) {
-                return DropdownMenuItem(
-                  value: category['id'].toString(),
-                  child: Text(category['name']),
-                );
-              }).toList(),
+                      return DropdownMenuItem(
+                        value: category['id'].toString(),
+                        child: Text(category['name']),
+                      );
+                    }).toList(),
               onChanged: categories.isEmpty
                   ? null
                   : (value) {
-                setState(() {
-                  selectedCategory = value;
-                  selectedSubCategory = null; // Reset subcategory
-                  fetchSubCategories(value!); // Fetch subcategories when category is selected
-                });
-              },
+                      setState(() {
+                        selectedCategory = value;
+                        selectedSubCategory = null; // Reset subcategory
+                        fetchSubCategories(
+                            value!); // Fetch subcategories when category is selected
+                      });
+                    },
               decoration: _inputDecoration(hintText: 'Select Category'),
             ),
 
             const SizedBox(height: 20),
             const _Label(text: 'Subcategory*'),
             DropdownButtonFormField<String>(
-              value: selectedSubCategory != null && subcategories.any((subcategory) => subcategory['id'].toString() == selectedSubCategory)
+              value: selectedSubCategory != null &&
+                      subcategories.any((subcategory) =>
+                          subcategory['id'].toString() == selectedSubCategory)
                   ? selectedSubCategory
                   : null,
               items: subcategories.isEmpty
                   ? [
-                const DropdownMenuItem(
-                  value: null,
-                  child: Text('No subcategories available'),
-                ),
-              ]
+                      const DropdownMenuItem(
+                        value: null,
+                        child: Text('No subcategories available'),
+                      ),
+                    ]
                   : subcategories.map((subcategory) {
-                return DropdownMenuItem(
-                  value: subcategory['id'].toString(),
-                  child: Text(subcategory['name']),
-                );
-              }).toList(),
+                      return DropdownMenuItem(
+                        value: subcategory['id'].toString(),
+                        child: Text(subcategory['name']),
+                      );
+                    }).toList(),
               onChanged: subcategories.isEmpty
                   ? null
                   : (value) {
-                setState(() {
-                  selectedSubCategory = value;
-                });
-              },
+                      setState(() {
+                        selectedSubCategory = value;
+                      });
+                    },
               decoration: _inputDecoration(hintText: 'Select Subcategory'),
             ),
             SizedBox(height: 20),
             ElevatedButton(
-              onPressed: _updateLocationFeild, // Calls the function to update location
+              onPressed:
+                  _updateLocationFeild, // Calls the function to update location
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                 shape: RoundedRectangleBorder(
@@ -382,7 +393,8 @@ class _PostAdsContentState extends State<PostAdsContent> {
                 ),
               ),
               child: Row(
-                mainAxisSize: MainAxisSize.min, // Keeps the button as small as possible
+                mainAxisSize:
+                    MainAxisSize.min, // Keeps the button as small as possible
                 children: [
                   Icon(Icons.location_on), // Location icon
                   SizedBox(width: 8), // Spacing between icon and text
@@ -476,9 +488,9 @@ class _PostAdsContentState extends State<PostAdsContent> {
                     value: selectedMonth,
                     items: months
                         .map((month) => DropdownMenuItem(
-                      value: month,
-                      child: Text(month),
-                    ))
+                              value: month,
+                              child: Text(month),
+                            ))
                         .toList(),
                     onChanged: (value) {
                       setState(() {
@@ -495,9 +507,9 @@ class _PostAdsContentState extends State<PostAdsContent> {
                     value: selectedDay,
                     items: days
                         .map((day) => DropdownMenuItem(
-                      value: day,
-                      child: Text(day),
-                    ))
+                              value: day,
+                              child: Text(day),
+                            ))
                         .toList(),
                     onChanged: (value) {
                       setState(() {
@@ -510,93 +522,95 @@ class _PostAdsContentState extends State<PostAdsContent> {
                 ),
               ],
             ),
-        const SizedBox(height: 20),
-        const _Label(text: 'Description'),
-        _InputField(
-          hintText: 'Enter detailed description',
-          controller: descriptionController,
-          maxLines: 5,
-        ),
-        const SizedBox(height: 20),
-        const _Label(text: 'Upload Images*'),
-        GestureDetector(
-          onTap: _pickImages, // Call _pickImages to pick multiple images
-          child: Container(
-            width: double.infinity,
-            height: 100,
-            color: Colors.grey[200],
-            child: Center(
-              child: Text(
-                'Tap to upload images',
-                style: TextStyle(color: Colors.grey[600]),
+            const SizedBox(height: 20),
+            const _Label(text: 'Description'),
+            _InputField(
+              hintText: 'Enter detailed description',
+              controller: descriptionController,
+              maxLines: 5,
+            ),
+            const SizedBox(height: 20),
+            const _Label(text: 'Upload Images*'),
+            GestureDetector(
+              onTap: _pickImages, // Call _pickImages to pick multiple images
+              child: Container(
+                width: double.infinity,
+                height: 100,
+                color: Colors.grey[200],
+                child: Center(
+                  child: Text(
+                    'Tap to upload images',
+                    style: TextStyle(color: Colors.grey[600]),
+                  ),
+                ),
               ),
             ),
-          ),
-        ),
 
-        const SizedBox(height: 20),
+            const SizedBox(height: 20),
 
 // Display the selected images with a remove icon and error handling
-        Wrap(
-          spacing: 8.0,
-          children: _images.asMap().entries.map((entry) {
-            int index = entry.key; // Get the index of the image
-            XFile? image = entry.value; // Get the image
+            Wrap(
+              spacing: 8.0,
+              children: _images.asMap().entries.map((entry) {
+                int index = entry.key; // Get the index of the image
+                XFile? image = entry.value; // Get the image
 
-            return Padding(
-              padding: const EdgeInsets.all(2.0), // Add padding of 2px around the image item
-              child: Stack(
-                children: [
-                  // Try-catch to handle possible image loading errors
-                  if (File(image!.path).existsSync()) // Check if the file exists
-                    Image.file(
-                      File(image.path),
-                      width: 80,
-                      height: 80,
-                      fit: BoxFit.cover,
-                    )
-                  else
-                    Container(
-                      width: 80,
-                      height: 80,
-                      color: Colors.grey[300],
-                      child: Center(
-                        child: Icon(
-                          Icons.broken_image, // Show a broken image icon
-                          color: Colors.red,
+                return Padding(
+                  padding: const EdgeInsets.all(
+                      2.0), // Add padding of 2px around the image item
+                  child: Stack(
+                    children: [
+                      // Try-catch to handle possible image loading errors
+                      if (File(image!.path)
+                          .existsSync()) // Check if the file exists
+                        Image.file(
+                          File(image.path),
+                          width: 80,
+                          height: 80,
+                          fit: BoxFit.cover,
+                        )
+                      else
+                        Container(
+                          width: 80,
+                          height: 80,
+                          color: Colors.grey[300],
+                          child: Center(
+                            child: Icon(
+                              Icons.broken_image, // Show a broken image icon
+                              color: Colors.red,
+                            ),
+                          ),
+                        ),
+                      // Remove icon in the top-right corner
+                      Positioned(
+                        top: 0,
+                        right: 0,
+                        child: GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _images.removeAt(
+                                  index); // Remove the image from the list
+                            });
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.red,
+                            ),
+                            padding: const EdgeInsets.all(4.0),
+                            child: Icon(
+                              Icons.close,
+                              color: Colors.white,
+                              size: 16, // Small size for the remove icon
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  // Remove icon in the top-right corner
-                  Positioned(
-                    top: 0,
-                    right: 0,
-                    child: GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _images.removeAt(index); // Remove the image from the list
-                        });
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.red,
-                        ),
-                        padding: const EdgeInsets.all(4.0),
-                        child: Icon(
-                          Icons.close,
-                          color: Colors.white,
-                          size: 16, // Small size for the remove icon
-                        ),
-                      ),
-                    ),
+                    ],
                   ),
-                ],
-              ),
-            );
-          }).toList(),
-        ),
-
+                );
+              }).toList(),
+            ),
 
             const SizedBox(height: 30),
             Container(
@@ -674,7 +688,7 @@ class _InputField extends StatelessWidget {
         prefixText: prefixText,
       ),
       keyboardType:
-      prefixText != null ? TextInputType.number : TextInputType.text,
+          prefixText != null ? TextInputType.number : TextInputType.text,
     );
   }
 }

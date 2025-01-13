@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:try_test/constant/user_constant.dart';
-import 'package:try_test/pages/mainPage.dart';
+
 
 import '../../consts.dart';
 
@@ -122,4 +122,63 @@ class ApiService {
       return false;
     }
   }
+
+   // Function to fetch product details
+  Future<Map<String, dynamic>?> fetchProductDetails(int productId) async {
+    final url = '${AppConstant.API_URL}api/v1/product/single-product/$productId';
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        print('Failed to fetch product details. Status Code: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('Error: $e');
+      return null;
+    }
+  }
+
+  // Function to create a chat room
+  Future<bool> createChatRoom(Map<String, dynamic> requestData) async {
+    const String apiUrl = '${AppConstant.API_URL}api/v1/chat/create-chat-room';
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {'Content-Type': 'application/json; charset=UTF-8'},
+        body: jsonEncode(requestData),
+      );
+      if (response.statusCode == 201) {
+        print('Chat room created successfully.');
+        return true;
+      } else {
+        print('Failed to create chat room. Status code: ${response.statusCode}');
+        return false;
+      }
+    } catch (e) {
+      print('Error occurred: $e');
+      return false;
+    }
+  }
+
+  // Function to fetch the receiver's email by seller ID
+  Future<String?> getReceiverEmail(int reciverId) async {
+    final url = '${AppConstant.API_URL}api/v1/seller/single-seller/$reciverId';
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return data['email'];
+      } else {
+        print("Failed to fetch data. Status Code: ${response.statusCode}");
+        return null;
+      }
+    } catch (e) {
+      print("Error occurred: $e");
+      return null;
+    }
+  }
+
+  
 }

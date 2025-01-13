@@ -109,7 +109,7 @@ class _CategoryWiseState extends State<CategoryWise> {
 
               final String title = product['product_name'] ?? 'Unknown';
               final String imageUrl = product['image'] ?? '';
-              final String price = "${product['monthly_rental']}/Month" ?? 'N/A';
+              final String price = "${product['monthly_rental']}/Month" ;
               final String category = widget.categoryName;
               final int productId = product['id'];
 
