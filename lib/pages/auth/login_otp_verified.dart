@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:lottie/lottie.dart';
 import 'package:try_test/pages/mainPage.dart';
 import 'dart:async';
 import '../../consts.dart';
@@ -26,6 +27,7 @@ class _OTPScreenState extends State<OTPScreen> {
   Timer? _timer;
   int _timeRemaining = 60;
   bool _isResendEnabled = false;
+  bool _isLoading = false; // Add this line
   final ApiService _apiService = ApiService();
 
   @override
@@ -61,28 +63,44 @@ class _OTPScreenState extends State<OTPScreen> {
     _startTimer();
   }
 
- Future<void> _verifyOtp() async {
-  final enteredOtp = _otpControllers.map((controller) => controller.text).join();
+  Future<void> _verifyOtp() async {
+    setState(() {
+      _isLoading = true; // Start loading when OTP verification starts
+    });
 
-  if (enteredOtp.length != 6) {
-    Fluttertoast.showToast(
-      msg: "Please enter a valid 6-digit OTP",
-      backgroundColor: Colors.red,
-      textColor: Colors.white,
-    );
-    return;
+    final enteredOtp = _otpControllers.map((controller) => controller.text).join();
+
+    if (enteredOtp.length != 6) {
+      Fluttertoast.showToast(
+        msg: "Please enter a valid 6-digit OTP",
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
+      setState(() {
+        _isLoading = false; // Stop loading if OTP is invalid
+      });
+      return;
+    }
+
+    final isVerified = await _apiService.verifyOtp(widget.userId, widget.contact, enteredOtp);
+
+    setState(() {
+      _isLoading = false; // Stop loading once verification is done
+    });
+
+    if (isVerified) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const MyHomePage()),
+      );
+    } else {
+      Fluttertoast.showToast(
+        msg: "Invalid OTP",
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
+    }
   }
-
-  final isVerified = await _apiService.verifyOtp(widget.userId, widget.contact, enteredOtp);
-
-  if (isVerified) {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const MyHomePage()),
-    );
-  }
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -90,92 +108,87 @@ class _OTPScreenState extends State<OTPScreen> {
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [AppColors.primaryColor, AppColors.primaryTextColor],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
+        margin: const EdgeInsets.only(bottom: 0),
+        padding: EdgeInsets.zero, // No padding
+        child: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              const SizedBox(height: 100),
+
               // Header Text
-              Text(
+              const Text(
                 "Verify OTP",
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: AppColors.primaryTextColor,
                 ),
               ),
-
               const SizedBox(height: 10),
-
               Text(
                 "Enter the OTP sent to +91 ${widget.contact}",
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 16,
-                  color: Colors.white70,
+                  color: Colors.black87,
                 ),
               ),
-
-              const SizedBox(height: 30),
-
-              // OTP Input Fields
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: List.generate(6, (index) {
-                  return Container(
-                    width: 50,
-                    height: 60,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          blurRadius: 10,
-                          offset: const Offset(0, 5),
-                        ),
-                      ],
-                    ),
-                    child: TextField(
-                      controller: _otpControllers[index],
-                      maxLength: 1,
-                      textAlign: TextAlign.center,
-                      keyboardType: TextInputType.number,
-                      style: const TextStyle(
-                          fontSize: 20, fontWeight: FontWeight.bold),
-                      decoration: const InputDecoration(
-                        counterText: '',
-                        border: InputBorder.none,
-                      ),
-                      onChanged: (value) {
-                        if (value.length == 1)
-                          FocusScope.of(context).nextFocus();
-                      },
-                    ),
-                  );
-                }),
-              ),
-
               const SizedBox(height: 20),
 
-              // Resend Timer and Button
+              // OTP Input Fields
+              Container(
+                padding: const EdgeInsets.all(10),
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 3,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: List.generate(6, (index) {
+                    return SizedBox(
+                      width: 50,
+                      height: 60,
+                      child: TextField(
+                        controller: _otpControllers[index],
+                        maxLength: 1,
+                        textAlign: TextAlign.center,
+                        keyboardType: TextInputType.number,
+                        style: const TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
+                        decoration: const InputDecoration(
+                          counterText: '',
+                          border: OutlineInputBorder(),
+                        ),
+                        onChanged: (value) {
+                          if (value.isNotEmpty) {
+                            FocusScope.of(context).nextFocus();
+                          }
+                        },
+                      ),
+                    );
+                  }),
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Resend Timer
               Text(
                 "Resend OTP in $_timeRemaining seconds",
                 style: TextStyle(
-                  color: _isResendEnabled ? Colors.green : Colors.white70,
+                  color: _isResendEnabled ? Colors.green : Colors.black87,
                   fontWeight: FontWeight.w500,
                 ),
               ),
-
               const SizedBox(height: 10),
-
               GestureDetector(
                 onTap: _isResendEnabled ? _sendOtp : null,
                 child: Text(
@@ -187,42 +200,71 @@ class _OTPScreenState extends State<OTPScreen> {
                   ),
                 ),
               ),
-
               const SizedBox(height: 40),
 
-              // Verify Button
-              Container(
-                width: double.infinity,
-                height: 50,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(30),
-                  gradient: const LinearGradient(
-                    colors: [
-                      AppColors.primaryColor,
-                      AppColors.primaryTextColor
+              // Verify OTP Button with Loading State
+              GestureDetector(
+                onTap: _isLoading ? null : _verifyOtp,
+                child: Container(
+                  width: double.infinity,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [
+                        AppColors.primaryTextColor,
+                        AppColors.primaryColor
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(30),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 10,
+                        offset: const Offset(0, 5),
+                      ),
                     ],
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
-                      blurRadius: 10,
-                      offset: const Offset(0, 5),
+                  child: Center(
+                    child: _isLoading
+                        ? const CircularProgressIndicator(
+                            color: Colors.white)
+                        : const Text(
+                            "Verify OTP",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 110),
+
+              // Animation Container
+              Container(
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      AppColors.primaryColor,
+                      AppColors.primaryTextColor,
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(50),
+                    topRight: Radius.circular(50),
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    Lottie.asset(
+                      'assets/anim/anim_1.json',
+                      height: MediaQuery.of(context).size.height * 0.4,
                     ),
                   ],
-                ),
-                child: ElevatedButton(
-                  onPressed: _verifyOtp,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.transparent,
-                    shadowColor: Colors.transparent,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                  ),
-                  child: const Text(
-                    "Verify OTP",
-                    style: TextStyle(color: Colors.white, fontSize: 16),
-                  ),
                 ),
               ),
             ],
@@ -232,3 +274,5 @@ class _OTPScreenState extends State<OTPScreen> {
     );
   }
 }
+
+  

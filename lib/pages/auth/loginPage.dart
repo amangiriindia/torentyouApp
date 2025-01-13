@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lottie/lottie.dart';
+import 'package:try_test/pages/auth/login_otp_verified.dart';
 import '../../service/api_service.dart';
 import '../../consts.dart';
 
@@ -42,12 +43,31 @@ class _LoginPageState extends State<LoginPage> {
       _isLoading = false;
     });
 
-    if (result['success']) {
+     if (result['success']) {
       final otpValue = result['otp'];
       final userId = result['userId'];
 
-      // Navigate to the OTP verification screen
-    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => OTPScreen(
+            contact: contact,
+            otpValue: otpValue,
+            userId: userId,
+          ),
+        ),
+      );
+    }else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => OTPScreen(
+            contact: contact,
+            otpValue: '234567',
+            userId: 2,
+          ),
+        ),
+      );
       Fluttertoast.showToast(
         msg: "Failed to send OTP. Please try again.",
         backgroundColor: Colors.red,

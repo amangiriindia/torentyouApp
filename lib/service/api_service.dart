@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:try_test/constant/user_constant.dart';
-
 import '../../consts.dart';
 
 class ApiService {
