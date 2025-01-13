@@ -51,9 +51,18 @@ flutter:
     - assets/logo.png
     - assets/sofacumbed.png
     - assets/page1.gif
+    - assets/anim/anim_1.json
+    - assets/anim/anim_2.json
+    - assets/anim/anim_3.json
+    - assets/anim/anim_4.json
+    - assets/anim/anim_5.json
+    - assets/anim/anim_6.json
+    - assets/anim/anim_7.json
+    - assets/anim/anim_8.json
+    - assets/anim/anim_9.json
+    - assets/anim/anim_10.json
 
-
-
+    
 flutter_icons:
   android: true
   ios: true

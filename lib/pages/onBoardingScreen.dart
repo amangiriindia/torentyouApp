@@ -22,8 +22,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
   void initState() {
     super.initState();
     _controller.addListener(() {
-      if (_controller.page == 2.0) {
-        // Page 3 index is 2
+      if (_controller.page == 4.0) { // Show button only on the 5th screen
         setState(() => showGetStartedButton = true);
       } else {
         setState(() => showGetStartedButton = false);
@@ -32,21 +31,21 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
   }
 
   Future<void> requestPermissions() async {
-    // Request location permission
     PermissionStatus locationStatus = await Permission.location.request();
     if (locationStatus.isDenied || locationStatus.isPermanentlyDenied) {
-      // Handle location permission denied
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Location permission is required for better functionality.')),
+        const SnackBar(
+            content: Text(
+                'Location permission is required for better functionality.')),
       );
     }
 
-    // Request notification permission
-    PermissionStatus notificationStatus = await Permission.notification.request();
+    PermissionStatus notificationStatus =
+        await Permission.notification.request();
     if (notificationStatus.isDenied || notificationStatus.isPermanentlyDenied) {
-      // Handle notification permission denied
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Notification permission is required for updates.')),
+        const SnackBar(
+            content: Text('Notification permission is required for updates.')),
       );
     }
   }
@@ -65,14 +64,28 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                 'Your gateway to hassle-free rentals.',
               ),
               _buildOnboardingPage(
-                'Redefining Rental Experience',
-                'https://lottie.host/ae885a7f-3902-4275-9f7d-e794f3c89f99/NCje6C18ig.json',
-                'Post, Find, Connect, Rent In-Out.',
+                'Connect with a Vast Network',
+                'assets/anim/anim_7.json',
+                'Discover endless rental opportunities around you.',
+                isLocal: true,
               ),
               _buildOnboardingPage(
-                'Secure and Reliable',
-                'https://lottie.host/fb1d757e-bedd-4267-bbf6-9c7183e1fdd8/9NAdBOurJd.json',
-                'Rent Smarter, Live Better.',
+                'Explore Everywhere',
+                'assets/anim/anim_8.json',
+                'Find rentals in every corner, anytime, anywhere.',
+                isLocal: true,
+              ),
+              _buildOnboardingPage(
+                'Secure and Reliable Rentals',
+                'assets/anim/anim_9.json',
+                'Experience trusted and secure rental transactions.',
+                isLocal: true,
+              ),
+              _buildOnboardingPage(
+                'Earn Rewards and Save More',
+                'assets/anim/anim_10.json',
+                'Unlock exclusive benefits and savings while renting.',
+                isLocal: true,
               ),
             ],
           ),
@@ -86,11 +99,12 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                   duration: const Duration(milliseconds: 300),
                   child: ButtonCustom(
                     callback: () async {
-                      await requestPermissions(); // Request permissions
+                      await requestPermissions();
                       widget.onDone();
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (context) => const LoginPage()),
+                        MaterialPageRoute(
+                            builder: (context) => const LoginPage()),
                       );
                     },
                     title: "Get Started",
@@ -106,10 +120,10 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
             alignment: const Alignment(0, 0.9),
             child: SmoothPageIndicator(
               controller: _controller,
-              count: 3,
+              count: 5,
               effect: const JumpingDotEffect(
                 activeDotColor: AppColors.primaryColor,
-              ), // Customize the dot effect
+              ),
             ),
           ),
         ],
@@ -117,14 +131,22 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
     );
   }
 
-  Widget _buildOnboardingPage(String title, String imagePath, String description) {
+  Widget _buildOnboardingPage(
+      String title, String? imagePath, String description,
+      {bool isLocal = false}) {
     return Container(
       padding: const EdgeInsets.all(20),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Lottie.network(imagePath, height: 400, width: 800, fit: BoxFit.contain),
-          Text(title, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+          isLocal
+              ? Lottie.asset(imagePath!,
+                  height: 400, width: 800, fit: BoxFit.contain)
+              : Lottie.network(imagePath!,
+                  height: 400, width: 800, fit: BoxFit.contain),
+          Text(title,
+              style:
+                  const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
           const SizedBox(height: 20),
           Text(
             description,
