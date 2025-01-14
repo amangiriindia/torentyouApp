@@ -1,7 +1,7 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:try_test/components/no_data_found.dart';
 import '../consts.dart';
+import '../service/api_service.dart';
 
 class AdsReviewByProduct extends StatefulWidget {
   final String productId;
@@ -32,40 +32,13 @@ class _AdsReviewByProductState extends State<AdsReviewByProduct> {
 
   Future<void> fetchReviews() async {
     try {
-      final response = await http.get(
-        Uri.parse('${AppConstant.API_URL}api/v1/review/all-product-review/${widget.productId}'),
-      );
-       print(response.body);
-       print(response.statusCode);
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-
-        if (data['success']) {
-          setState(() {
-            reviews = (data['data'] as List).map((item) {
-              return Review(
-                rating: item['rating'],
-                comment: item['comment'],
-                userName: item['name'],
-                mobile: item['email'],
-                date: item['date_time'],
-              );
-            }).toList();
-            isLoading = false;
-            hasError = false;
-          });
-        } else {
-          setState(() {
-            hasError = true;
-            isLoading = false;
-          });
-        }
-      } else {
-        setState(() {
-          hasError = true;
-          isLoading = false;
-        });
-      }
+      ApiService apiService = ApiService();
+      final reviewList = await apiService.fetchReviews(widget.productId);
+      setState(() {
+        reviews = reviewList;
+        isLoading = false;
+        hasError = false;
+      });
     } catch (e) {
       setState(() {
         hasError = true;
@@ -122,7 +95,7 @@ class _AdsReviewByProductState extends State<AdsReviewByProduct> {
               child: isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : hasError
-                  ? const Center(child: Text('No reviews found for this product'))
+                  ? const NoDataFound(message: 'No reviews found for this product')
                   : ListView.builder(
                 itemCount: reviews.length,
                 itemBuilder: (context, index) {

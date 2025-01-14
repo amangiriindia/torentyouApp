@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:http/http.dart' as http;
-import 'package:try_test/constant/user_constant.dart';
-import 'dart:convert';
+import 'package:try_test/components/no_data_found.dart';
+import '../constant/user_constant.dart';
 import '../consts.dart';
+import '../service/api_service.dart';
 
 class MySubscriptionPage extends StatefulWidget {
   const MySubscriptionPage({super.key});
@@ -17,6 +17,8 @@ class _MySubscriptionPageState extends State<MySubscriptionPage> {
   bool isLoading = true;
   int userId = 0; // Default value
 
+  final ApiService _apiService = ApiService();
+
   @override
   void initState() {
     super.initState();
@@ -24,50 +26,24 @@ class _MySubscriptionPageState extends State<MySubscriptionPage> {
   }
 
   Future<void> _initializeUserData() async {
-    await _getUserData(); // Fetch userId first
-    fetchSubscriptions(); // Call fetchSubscriptions after userId is fetched
+    _getUserData();
+    fetchSubscriptions();
   }
 
-  Future<void> _getUserData() async {
-
-    userId = UserConstant.USER_ID ?? 1; // Default value if userId is not found
-    setState(() {}); // Update UI if needed
+  void _getUserData() {
+    userId = UserConstant.USER_ID ?? 1;
+    setState(() {});
   }
 
   Future<void> fetchSubscriptions() async {
-    final String url = '${AppConstant.API_URL}api/v1/usersubscription/single-user-subscription/$userId';
+    setState(() => isLoading = true);
 
     try {
-      final response = await http.get(Uri.parse(url));
-
-      if (response.statusCode == 200) {
-        final List<dynamic> responseData = json.decode(response.body);
-
-        setState(() {
-          subscriptions = responseData.map((data) {
-            final jsonData = json.decode(data['json_data']);
-            return {
-              'planName': jsonData['description'] ?? 'N/A',
-              'price': '₹${data['price']} /-',
-              'duration': '${jsonData['duration']} Months',
-              'totalAds': data['total_ads'].toString(),
-              'usedAds': data['used_ads'].toString(),
-              'availableAds': data['balance_ads'].toString(),
-              'startDate': data['subscription_date'],
-              'expiry': data['expiry_date'],
-              'status': data['status'] == 'Approved' ? 'Active' : 'Expired',
-            };
-          }).toList();
-          isLoading = false;
-        });
-      } else {
-        throw Exception('Failed to load subscriptions');
-      }
+      subscriptions = await _apiService.fetchUserSubscriptions(userId);
     } catch (e) {
-      print('Error fetching subscriptions: $e');
-      setState(() {
-        isLoading = false;
-      });
+      print(e);
+    } finally {
+      setState(() => isLoading = false);
     }
   }
 
@@ -90,128 +66,127 @@ class _MySubscriptionPageState extends State<MySubscriptionPage> {
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : subscriptions.isEmpty
-          ? const Center(
-        child: Text(
-          "You have no subscriptions.",
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Colors.grey,
-          ),
-        ),
-      )
-          : Padding(
+              ? const NoDataFound(message: 'You have no subscriptions.')
+              : buildSubscriptionList(),
+    );
+  }
+
+  Widget buildSubscriptionList() {
+    return Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: ListView.builder(
+        itemCount: subscriptions.length,
+        itemBuilder: (context, index) {
+          final subscription = subscriptions[index];
+          return buildSubscriptionCard(subscription);
+        },
+      ),
+    );
+  }
+
+  Widget buildSubscriptionCard(Map<String, dynamic> subscription) {
+    return Card(
+      elevation: 5,
+      margin: const EdgeInsets.symmetric(vertical: 10),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      color: Colors.white,
+      child: Padding(
         padding: const EdgeInsets.all(20.0),
-        child: ListView.builder(
-          itemCount: subscriptions.length,
-          itemBuilder: (context, index) {
-            final subscription = subscriptions[index];
-            return Card(
-              elevation: 5,
-              margin: const EdgeInsets.symmetric(vertical: 10),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              color: Colors.white, // Set card background color to white
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          FontAwesomeIcons.trophy,
-                          size: 24,
-                          color: Colors.amber[700],
-                        ),
-                        const SizedBox(width: 10),
-                        Text(
-                          subscription['planName'] ?? 'N/A',
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const Spacer(), // This pushes the circle to the end
-                        Container(
-                          width: 15,
-                          height: 15,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: subscription['status'] == 'Active'
-                                ? Colors.green
-                                : Colors.red,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 15),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          subscription['price'] ?? 'N/A',
-                          style: const TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.primaryTextColor,
-                          ),
-                        ),
-                        Text(
-                          'Duration: ${subscription['duration'] ?? 'N/A'}',
-                          style: const TextStyle(
-                            fontSize: 14, // Reduced font size
-                            color: Colors.grey,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 15),
-                    _buildInfoWrap(
-                      items: [
-                        _buildInfoItem(
-                          icon: FontAwesomeIcons.rectangleAd,
-                          label: "Total Ads",
-                          value: subscription['totalAds'] ?? 'N/A',
-                        ),
-                        _buildInfoItem(
-                          icon: FontAwesomeIcons.checkCircle,
-                          label: "Used Ads",
-                          value: subscription['usedAds'] ?? 'N/A',
-                        ),
-                        _buildInfoItem(
-                          icon: FontAwesomeIcons.circlePlus,
-                          label: "Available Ads",
-                          value: subscription['availableAds'] ?? 'N/A',
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 15),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildInfoItem(
-                            icon: FontAwesomeIcons.calendarDays,
-                            label: "Start",
-                            value: subscription['startDate'] ?? 'N/A',
-                          ),
-                        ),
-                        const SizedBox(width: 20),
-                        Expanded(
-                          child: _buildInfoItem(
-                            icon: FontAwesomeIcons.hourglassEnd,
-                            label: "Expiry",
-                            value: subscription['expiry'] ?? 'N/A',
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  FontAwesomeIcons.trophy,
+                  size: 24,
+                  color: Colors.amber[700],
                 ),
-              ),
-            );
-          },
+                const SizedBox(width: 10),
+                Text(
+                  subscription['planName'] ?? 'N/A',
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const Spacer(),
+                Container(
+                  width: 15,
+                  height: 15,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: subscription['status'] == 'Active'
+                        ? Colors.green
+                        : Colors.red,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 15),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  subscription['price'] ?? 'N/A',
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primaryTextColor,
+                  ),
+                ),
+                Text(
+                  'Duration: ${subscription['duration'] ?? 'N/A'}',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 15),
+            _buildInfoWrap(
+              items: [
+                _buildInfoItem(
+                  icon: FontAwesomeIcons.rectangleAd,
+                  label: "Total Ads",
+                  value: subscription['totalAds'] ?? 'N/A',
+                ),
+                _buildInfoItem(
+                  icon: FontAwesomeIcons.checkCircle,
+                  label: "Used Ads",
+                  value: subscription['usedAds'] ?? 'N/A',
+                ),
+                _buildInfoItem(
+                  icon: FontAwesomeIcons.circlePlus,
+                  label: "Available Ads",
+                  value: subscription['availableAds'] ?? 'N/A',
+                ),
+              ],
+            ),
+            const SizedBox(height: 15),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildInfoItem(
+                    icon: FontAwesomeIcons.calendarDays,
+                    label: "Start",
+                    value: subscription['startDate'] ?? 'N/A',
+                  ),
+                ),
+                const SizedBox(width: 20),
+                Expanded(
+                  child: _buildInfoItem(
+                    icon: FontAwesomeIcons.hourglassEnd,
+                    label: "Expiry",
+                    value: subscription['expiry'] ?? 'N/A',
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
@@ -239,8 +214,8 @@ class _MySubscriptionPageState extends State<MySubscriptionPage> {
           "$label: $value",
           style: const TextStyle(
             color: Colors.grey,
-            fontSize: 13, // Smaller font size
-            fontFamily: 'Poppins', // Poppins font family
+            fontSize: 13,
+            fontFamily: 'Poppins',
           ),
         ),
       ],

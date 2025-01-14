@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
+import 'package:try_test/components/no_data_found.dart';
 import '../service/api_service.dart';
 import '../consts.dart';
 import '../pages/Postadswithnavbar.dart';
@@ -74,43 +75,9 @@ Widget build(BuildContext context) {
             child: CircularProgressIndicator(),
           )
         : hasError
-            ? Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Lottie.asset(
-                      'assets/anim/anim_4.json',
-                      width: 300,
-                      height: 300,
-                      fit: BoxFit.cover,
-                    ),
-                    const SizedBox(height: 20),
-                    const Text(
-                      'Oops! Something went wrong. Please try again later.',
-                      style: TextStyle(fontSize: 18, color: Colors.black),
-                    ),
-                  ],
-                ),
-              )
+            ?const NoDataFound(message: 'Oops! Something went wrong. Please try again later.')
             : myAds.isEmpty
-                ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Lottie.asset(
-                          'assets/anim/anim_4.json',
-                          width: 300,
-                          height: 300,
-                          fit: BoxFit.cover,
-                        ),
-                        const SizedBox(height: 20),
-                        const Text(
-                          'No Ads Available!',
-                          style: TextStyle(fontSize: 18, color: Colors.black),
-                        ),
-                      ],
-                    ),
-                  )
+                ? const NoDataFound(message: 'Oops! No Ads Available.')
                 : ListView.builder(
                     padding: const EdgeInsets.all(16.0),
                     itemCount: myAds.length,

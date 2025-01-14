@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:lottie/lottie.dart';
 
+import '../components/no_data_found.dart';
 import '../consts.dart';
 import '../service/database_helper.dart';
 import '../service/firebase_notification_service.dart';
@@ -189,24 +190,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
       body: Container(
         color: Colors.white,
         child: notifications.isEmpty
-            ? Center(
-              child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Lottie.asset(
-                      'assets/anim/anim_4.json',
-                      width: 300,
-                      height: 300,
-                      fit: BoxFit.cover,
-                    ),
-                    const SizedBox(height: 20),
-                    const Text(
-                      'No notifications yet!',
-                      style: TextStyle(fontSize: 18, color: Colors.black),
-                    ),
-                  ],
-                ),
-            )
+            ? const NoDataFound(message: 'No notifications yet!.')
             : ListView.builder(
                 itemCount: notifications.length,
                 itemBuilder: (context, index) {
