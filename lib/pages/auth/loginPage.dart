@@ -58,16 +58,16 @@ class _LoginPageState extends State<LoginPage> {
         ),
       );
     }else {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => OTPScreen(
-            contact: contact,
-            otpValue: '234567',
-            userId: 2,
-          ),
-        ),
-      );
+      // Navigator.push(
+      //   context,
+      //   MaterialPageRoute(
+      //     builder: (context) => OTPScreen(
+      //       contact: contact,
+      //       otpValue: '234567',
+      //       userId: 2,
+      //     ),
+      //   ),
+      // );
       Fluttertoast.showToast(
         msg: "Failed to send OTP. Please try again.",
         backgroundColor: Colors.red,

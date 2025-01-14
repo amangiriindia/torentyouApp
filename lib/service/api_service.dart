@@ -181,4 +181,30 @@ class ApiService {
       return null;
     }
   }
+
+  //function for get my ads
+  Future<List<dynamic>> fetchMyAds(int userId) async {
+    try {
+      final response = await http.post(
+        Uri.parse(
+            '${AppConstant.API_URL}api/v1/product/user-myads-all-product'),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({"seller_id": userId}),
+      );
+      print(response.statusCode);
+      print(response.body);
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['success']) {
+          return data['results'];
+        } else {
+          throw Exception('Failed to fetch ads: ${data['message']}');
+        }
+      } else {
+        throw Exception('HTTP Error: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error fetching ads: $e');
+    }
+  }
 }
