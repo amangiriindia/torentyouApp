@@ -293,6 +293,76 @@ class ApiService {
       throw Exception('Error: $e');
     }
   }
+
+   // Function to fetch chat rooms for Rent Request
+  Future<List<dynamic>> fetchChatRoomsRentReq() async {
+    final url = '${AppConstant.API_URL}api/v1/chat/all-userid-rentreq-chat-room/${UserConstant.USER_ID}';
+
+    try {
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['success']) {
+          return data['data']; // Return chat rooms data if successful
+        } else {
+          throw Exception('No chat rooms found');
+        }
+      } else {
+        throw Exception('Failed to load chat rooms');
+      }
+    } catch (error) {
+      throw Exception('Error fetching chat rooms: $error');
+    }
+  }
+
+  // Function to fetch chat rooms for Looking For (can be similarly added)
+  Future<List<dynamic>> fetchChatRoomsLookingFor(int userId) async {
+    final url = '${AppConstant.API_URL}api/v1/chat/all-userid-lookingfor-chat-room/${UserConstant.USER_ID}';
+
+    try {
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['success']) {
+          return data['data']; // Return chat rooms data if successful
+        } else {
+          throw Exception('No chat rooms found');
+        }
+      } else {
+        throw Exception('Failed to load chat rooms');
+      }
+    } catch (error) {
+      throw Exception('Error fetching chat rooms: $error');
+    }
+  }
+
+
+  // Function to fetch chat rooms from the custom API
+  Future<List<dynamic>> fetchChatRooms(int userId) async {
+    final url = '${AppConstant.API_URL}api/v1/chat/all-userid-chat-room/$userId';
+
+    try {
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['success']) {
+          return data['data']; // Return the chat rooms
+        } else {
+          throw Exception('No chat rooms found for userId $userId');
+        }
+      } else {
+        throw Exception('Failed to load chat rooms');
+      }
+    } catch (error) {
+      throw Exception('Error fetching chat rooms: $error');
+    }
+  }
+
+  
+
   }
 
 

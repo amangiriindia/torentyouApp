@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-
+import 'package:try_test/chat/chat_model.dart';
+import 'package:try_test/constant/user_constant.dart';
+import '../components/no_data_found.dart';
 import '../consts.dart';
+import '../service/api_service.dart';
 import 'chat_screen.dart'; // Your chat page import
 
 class ChatListScreen extends StatefulWidget {
@@ -27,10 +27,9 @@ class _ChatListScreenState extends State<ChatListScreen> {
 
   // Function to get userId and email from SharedPreferences
   Future<void> _getUserData() async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
     setState(() {
-      userId = pref.getInt('userId') ?? 0;
-      senderEmail = pref.getString('email') ?? '';
+      userId = UserConstant.USER_ID;
+      senderEmail = UserConstant.EMAIL;
     });
     print('User ID: $userId');
     print('Sender Email: $senderEmail');
@@ -40,42 +39,22 @@ class _ChatListScreenState extends State<ChatListScreen> {
     }
   }
 
-  // Function to fetch chat rooms from the custom API
+  // Function to fetch chat rooms using ApiService
   Future<void> _fetchChatRooms() async {
-    final url = '${AppConstant.API_URL}api/v1/chat/all-userid-chat-room/$userId';
+    final apiService = ApiService();
 
     try {
-      final response = await http.get(Uri.parse(url));
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        if (data['success']) {
-          setState(() {
-            chatRooms = data['data'];
-            isLoading = false;
-          });
-        } else {
-          setState(() {
-            isLoading = false;
-          });
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('No chat rooms found for userId $userId')),
-          );
-        }
-      } else {
-        setState(() {
-          isLoading = false;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to load chat rooms')),
-        );
-      }
+      final chatRoomsData = await apiService.fetchChatRooms(userId);
+      setState(() {
+        chatRooms = chatRoomsData;
+        isLoading = false;
+      });
     } catch (error) {
       setState(() {
         isLoading = false;
       });
-      print('Error fetching chat rooms: $error');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error fetching chat rooms')),
+        SnackBar(content: Text('Error fetching chat rooms: $error')),
       );
     }
   }
@@ -108,14 +87,14 @@ class _ChatListScreenState extends State<ChatListScreen> {
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : chatRooms.isEmpty
-          ? const Center(child: Text('No chats available.'))
-          : ListView.builder(
-        itemCount: chatRooms.length,
-        itemBuilder: (context, index) {
-          final chatRoom = chatRooms[index];
-          return _buildChatListItem(context, chatRoom);
-        },
-      ),
+              ? const NoDataFound(message: 'No chats available.', )
+              : ListView.builder(
+                  itemCount: chatRooms.length,
+                  itemBuilder: (context, index) {
+                    final chatRoom = chatRooms[index];
+                    return _buildChatListItem(context, chatRoom);
+                  },
+                ),
     );
   }
 
@@ -178,13 +157,14 @@ class _ChatListScreenState extends State<ChatListScreen> {
                 senderId: userId,
                 senderEmail: senderEmail,
                 receiverUserID: receiverUserId,
-                receiverUserEmail: otherUserEmail, productName: '', productImage: '',
+                receiverUserEmail: otherUserEmail,
+                productName: '',
+                productImage: '',
               ),
             ),
           );
         },
       ),
     );
-
   }
 }

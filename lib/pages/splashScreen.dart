@@ -14,6 +14,8 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
     print(UserConstant.USER_ID);
     print(UserConstant.NAME);
+    print(UserConstant.EMAIL);
+
     _navigateToNextScreen();
   }
 

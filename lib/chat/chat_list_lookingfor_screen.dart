@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-
+import 'package:try_test/components/no_data_found.dart';
+import 'package:try_test/constant/user_constant.dart';
+import 'package:try_test/service/api_service.dart';
 import '../consts.dart';
 import 'chat_screen.dart'; // Your chat page import
+
 
 class ChatListLookingforScreen extends StatefulWidget {
   const ChatListLookingforScreen({super.key});
 
   @override
-  State<ChatListLookingforScreen> createState() => _ChatListLookingforScreenState();
+  State<ChatListLookingforScreen> createState() =>
+      _ChatListLookingforScreenState();
 }
 
 class _ChatListLookingforScreenState extends State<ChatListLookingforScreen> {
@@ -18,6 +19,8 @@ class _ChatListLookingforScreenState extends State<ChatListLookingforScreen> {
   String senderEmail = '';
   List<dynamic> chatRooms = [];
   bool isLoading = true;
+
+  final ApiService _apiService = ApiService(); // Instantiate ApiService
 
   @override
   void initState() {
@@ -27,48 +30,28 @@ class _ChatListLookingforScreenState extends State<ChatListLookingforScreen> {
 
   // Function to get userId and email from SharedPreferences
   Future<void> _getUserData() async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
     setState(() {
-      userId = pref.getInt('userId') ?? 0;
-      senderEmail = pref.getString('email') ?? '';
+      userId = UserConstant.USER_ID;
+      senderEmail = UserConstant.EMAIL;
     });
-    print('User ID: $userId');
-    print('Sender Email: $senderEmail');
 
     if (userId != 0) {
       _fetchChatRooms(); // Fetch chat rooms for the user
     }
   }
 
-  // Function to fetch chat rooms from the custom API
+  // Function to fetch chat rooms from the API service
   Future<void> _fetchChatRooms() async {
-    final url = '${AppConstant.API_URL}api/v1/chat/all-userid-lookingfor-chat-room/$userId';
-
     try {
-      final response = await http.get(Uri.parse(url));
-
-        final data = json.decode(response.body);
-        if (data['success'] && response.statusCode == 200) {
-          setState(() {
-            chatRooms = data['data'];
-            isLoading = false;
-          });
-        } else {
-          setState(() {
-            isLoading = false;
-          });
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('No chat rooms found for userId $userId')),
-          );
-        }
+      final chatRoomsData = await _apiService.fetchChatRoomsLookingFor(userId);
+      setState(() {
+        chatRooms = chatRoomsData;
+        isLoading = false;
+      });
     } catch (error) {
       setState(() {
         isLoading = false;
       });
-      print('Error fetching chat rooms: $error');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error fetching chat rooms')),
-      );
     }
   }
 
@@ -100,14 +83,14 @@ class _ChatListLookingforScreenState extends State<ChatListLookingforScreen> {
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : chatRooms.isEmpty
-          ? const Center(child: Text('No chats available.'))
-          : ListView.builder(
-        itemCount: chatRooms.length,
-        itemBuilder: (context, index) {
-          final chatRoom = chatRooms[index];
-          return _buildChatListItem(context, chatRoom);
-        },
-      ),
+              ? const NoDataFound(message: 'No chats available.', )
+              : ListView.builder(
+                  itemCount: chatRooms.length,
+                  itemBuilder: (context, index) {
+                    final chatRoom = chatRooms[index];
+                    return _buildChatListItem(context, chatRoom);
+                  },
+                ),
     );
   }
 
@@ -123,7 +106,8 @@ class _ChatListLookingforScreenState extends State<ChatListLookingforScreen> {
         : chatRoom['reciver_id'];
 
     // Extract the first letter of the other user's email
-    final String firstLetter = otherUserEmail.isNotEmpty ? otherUserEmail[0].toUpperCase() : '';
+    final String firstLetter =
+        otherUserEmail.isNotEmpty ? otherUserEmail[0].toUpperCase() : '';
 
     return Card(
       shape: RoundedRectangleBorder(
@@ -170,13 +154,14 @@ class _ChatListLookingforScreenState extends State<ChatListLookingforScreen> {
                 senderId: userId,
                 senderEmail: senderEmail,
                 receiverUserID: receiverUserId,
-                receiverUserEmail: otherUserEmail, productImage: '', productName: '',
+                receiverUserEmail: otherUserEmail,
+                productImage: '',
+                productName: '',
               ),
             ),
           );
         },
       ),
     );
-
   }
 }
