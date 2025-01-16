@@ -33,5 +33,5 @@ class AppColors {
 class AppConstant {
   // static const String API_URL = 'https://trytest-xcqt.onrender.com/';
   static const String MAP_KEY = 'AIzaSyBd98NLneHO0QtwIvzfaLrkG4HMU1MdD_E';
-  static const String API_URL = 'http://192.168.1.16:8080/';
+  static const String API_URL = 'http://192.168.1.24:8080/';
 }
