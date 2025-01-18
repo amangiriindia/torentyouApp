@@ -56,6 +56,8 @@ class _PostAdsContentState extends State<PostAdsContent> {
       TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController stockController = TextEditingController();
+  final TextEditingController monthController = TextEditingController();
+  final TextEditingController dayController = TextEditingController();
 
   @override
   void initState() {
@@ -207,7 +209,8 @@ class _PostAdsContentState extends State<PostAdsContent> {
         locationController.text.isEmpty ||
         monthlyRentalController.text.isEmpty ||
         depositController.text.isEmpty ||
-        stockController.text.isEmpty ||
+        monthController.text.isEmpty ||
+        dayController.text.isEmpty ||
         packageOption == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fill all required fields')),
@@ -440,7 +443,7 @@ class _PostAdsContentState extends State<PostAdsContent> {
             ),
 
             const SizedBox(height: 20),
-            const _Label(text: 'Stock*'),
+            const _Label(text: 'Stock'),
             _InputField(
               hintText: 'Enter stock',
               controller: stockController,
@@ -480,49 +483,68 @@ class _PostAdsContentState extends State<PostAdsContent> {
             ),
 
             const SizedBox(height: 20),
-            const _Label(text: 'Select Duration'),
-            Row(
+
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: DropdownButtonFormField<String>(
-                    value: selectedMonth,
-                    items: months
-                        .map((month) => DropdownMenuItem(
-                              value: month,
-                              child: Text(month),
-                            ))
-                        .toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        selectedMonth = value;
-                        updateDuration();
-                      });
-                    },
-                    decoration: _inputDecoration(hintText: 'Select Month'),
-                  ),
+                const _Label(text: 'Select Duration*'),
+                Row(
+                  children: [
+                    // Input for Month
+                    Expanded(
+                      child: TextFormField(
+                        controller: monthController,
+                        decoration: _inputDecoration(hintText: 'Enter Month'),
+                        keyboardType: TextInputType.number,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Month is required';
+                          }
+                          final month = int.tryParse(value);
+                          if (month == null || month < 1 || month > 12) {
+                            return 'Enter a valid month (1-12)';
+                          }
+                          return null;
+                        },
+                        onChanged: (value) {
+                          setState(() {
+                            selectedMonth = value;
+                            updateDuration();
+                          });
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    // Input for Day
+                    Expanded(
+                      child: TextFormField(
+                        controller: dayController,
+                        decoration: _inputDecoration(hintText: 'Enter Day'),
+                        keyboardType: TextInputType.number,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Day is required';
+                          }
+                          final day = int.tryParse(value);
+                          if (day == null || day < 1 || day > 31) {
+                            return 'Enter a valid day (1-31)';
+                          }
+                          return null;
+                        },
+                        onChanged: (value) {
+                          setState(() {
+                            selectedDay = value;
+                            updateDuration();
+                          });
+                        },
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: DropdownButtonFormField<String>(
-                    value: selectedDay,
-                    items: days
-                        .map((day) => DropdownMenuItem(
-                              value: day,
-                              child: Text(day),
-                            ))
-                        .toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        selectedDay = value;
-                        updateDuration();
-                      });
-                    },
-                    decoration: _inputDecoration(hintText: 'Select Day'),
-                  ),
-                ),
+                const SizedBox(height: 20),
               ],
             ),
-            const SizedBox(height: 20),
+
             const _Label(text: 'Description'),
             _InputField(
               hintText: 'Enter detailed description',

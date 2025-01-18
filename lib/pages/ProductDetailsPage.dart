@@ -310,20 +310,25 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                       children: const [
                         Icon(Icons.warning, color: Colors.red), // Icon for the heading
                         SizedBox(width: 10), // Add space between the icon and the text
+                        
                         Text(
-                          "Important Notice",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
+                            "Warning: Can be Rental\n Scams Ahead!",
+                            style: TextStyle(fontWeight: FontWeight.bold,fontSize: 16),
+                          ),
                       ],
                     ),
-                      content: const Text(
-                        "For your safety:\n\n"
-                            "Do not share personal information like OTP, passwords, or bank details.\n"
-                            "Avoid transferring money without verifying the product and seller.\n"
-                            "Communicate through the app for better security.\n\n"
-                            "Proceed to chat if you agree to these terms.",
-                        style: TextStyle(fontSize: 16),
-                      ),
+                  
+                      content: const  Text(
+              "- Transfer money without meeting in person\n"
+              "- Go to unknown places alone\n"
+              "- Share OTP or PIN\n"
+              "- Agree to rent without a written lease\n"
+              "- Ignore red flags\n"
+              "- Forget to discuss terms and conditions in detail\n"
+              "- Rush into decisions\n"
+              "- Hesitate to report suspicious activity",
+              style: TextStyle(fontSize: 16),
+            ),
                       actions: [
                         // Cancel Button with Gradient
                         GradientButton(

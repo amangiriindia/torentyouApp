@@ -111,7 +111,7 @@ class _RentalCategoryState extends State<RentalCategory> {
                             shape: BoxShape.circle,
                             image: DecorationImage(
                               image: NetworkImage(category['image']),
-                              fit: BoxFit.cover,
+                              fit: BoxFit.contain,
                             ),
                           ),
                         ),

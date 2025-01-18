@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:chat_bubbles/chat_bubbles.dart';
+import '../consts.dart';
 import 'chat_service.dart';
 
 class ChatPage extends StatefulWidget {
@@ -59,7 +60,7 @@ class _ChatPageState extends State<ChatPage> {
                     text,
                     style: const TextStyle(color: Colors.white),
                   ),
-                  backgroundColor: Colors.blueAccent,
+                  backgroundColor: AppColors.primaryColor,
                 ),
               ))
           .toList(),
@@ -76,7 +77,7 @@ class _ChatPageState extends State<ChatPage> {
         padding: const EdgeInsets.all(12),
         margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
         decoration: BoxDecoration(
-          color: isSender ? Colors.blue : Colors.grey.shade300,
+          color: isSender ? AppColors.primaryColor : Colors.grey.shade300,
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(16),
             topRight: const Radius.circular(16),
@@ -143,12 +144,21 @@ class _ChatPageState extends State<ChatPage> {
               ),
               const SizedBox(width: 8),
               GestureDetector(
-                onTap: () => sendMessage(_messageController.text),
-                child: CircleAvatar(
-                  radius: 24,
-                  backgroundColor: Colors.blueAccent,
-                  child: const Icon(Icons.send, color: Colors.white),
-                ),
+        onTap: () => sendMessage(_messageController.text),
+        child: ClipOval(
+          child: Container(
+            width: 48, // Diameter of the circle
+            height: 48,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [AppColors.primaryColor, AppColors.primaryTextColor],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+            child: const Icon(Icons.send, color: Colors.white),
+          ),
+        ),
               ),
             ],
           ),
@@ -172,17 +182,18 @@ class _ChatPageState extends State<ChatPage> {
             Expanded(
               child: Text(
                 widget.productName,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
         ),
         centerTitle: true,
+        
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
-              colors: [Colors.deepPurple, Colors.indigo],
+              colors: [AppColors.primaryColor, AppColors.primaryTextColor],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
