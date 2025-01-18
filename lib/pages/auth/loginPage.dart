@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lottie/lottie.dart';
-import 'package:try_test/pages/auth/login_otp_verified.dart';
 import '../../service/api_service.dart';
 import '../../consts.dart';
+import 'login_otp_verified.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});

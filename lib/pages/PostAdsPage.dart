@@ -4,7 +4,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
-import 'package:try_test/constant/user_constant.dart';
+import '../constant/user_constant.dart';
 import '../consts.dart';
 import '../pageutills/myAdspage.dart';
 import '../service/google_map_helper.dart';

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shimmer/shimmer.dart';
-import 'package:try_test/constant/user_constant.dart';
 import '../consts.dart';
 import '../pageutills/categoryWise.dart';
 

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:try_test/components/no_data_found.dart';
-import 'package:try_test/constant/user_constant.dart';
-import 'package:try_test/service/api_service.dart';
-import '../consts.dart';
-import 'chat_screen.dart'; // Your chat page import
 
+import '../components/no_data_found.dart';
+import '../constant/user_constant.dart';
+import '../consts.dart';
+import '../service/api_service.dart';
+import 'chat_screen.dart'; // Your chat page import
 
 class ChatListLookingforScreen extends StatefulWidget {
   const ChatListLookingforScreen({super.key});
@@ -83,7 +83,9 @@ class _ChatListLookingforScreenState extends State<ChatListLookingforScreen> {
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : chatRooms.isEmpty
-              ? const NoDataFound(message: 'No chats available.', )
+              ? const NoDataFound(
+                  message: 'No chats available.',
+                )
               : ListView.builder(
                   itemCount: chatRooms.length,
                   itemBuilder: (context, index) {
@@ -106,8 +108,9 @@ class _ChatListLookingforScreenState extends State<ChatListLookingforScreen> {
         : chatRoom['reciver_id'];
 
     // Extract the first letter of the other user's email
+    final String productname = chatRoom['product_name'];
     final String firstLetter =
-        otherUserEmail.isNotEmpty ? otherUserEmail[0].toUpperCase() : '';
+        productname.isNotEmpty ? productname[0].toUpperCase() : '';
 
     return Card(
       shape: RoundedRectangleBorder(
@@ -140,10 +143,10 @@ class _ChatListLookingforScreenState extends State<ChatListLookingforScreen> {
           ),
         ),
         title: Text(
-          otherUserEmail,
+        productname,
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
-        subtitle: Text(chatRoom['product_name']),
+        subtitle: Text(otherUserEmail),
         trailing: const Icon(Icons.arrow_forward_ios),
         onTap: () {
           // Navigate to the chat page

@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
-import 'package:try_test/constant/user_constant.dart';
-import 'package:try_test/pageutills/myAdsReviewByProduct.dart';
 import '../../consts.dart';
+import '../constant/user_constant.dart';
+import '../pageutills/myAdsReviewByProduct.dart';
 
 class ApiService {
   Future<void> sendOtp(String contact) async {

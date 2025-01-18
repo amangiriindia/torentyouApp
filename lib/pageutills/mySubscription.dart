@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:try_test/components/no_data_found.dart';
+import '../components/no_data_found.dart';
 import '../constant/user_constant.dart';
 import '../consts.dart';
 import '../service/api_service.dart';

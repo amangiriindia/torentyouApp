@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:try_test/components/no_data_found.dart';
+import '../components/no_data_found.dart';
 import '../consts.dart';
 import '../service/api_service.dart';
 

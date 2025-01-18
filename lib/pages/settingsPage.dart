@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:try_test/constant/user_constant.dart';
+import '../constant/user_constant.dart';
 import '../consts.dart';
 import 'splashScreen.dart';
 

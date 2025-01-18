@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:try_test/payment/paymentService.dart';
-import 'package:try_test/payment/payment_config.dart';
+
+import 'paymentService.dart';
+import 'payment_config.dart';
 
 
 class PaymentPage extends StatefulWidget {

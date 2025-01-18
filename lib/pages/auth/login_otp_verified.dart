@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lottie/lottie.dart';
-import 'package:try_test/pages/mainPage.dart';
 import 'dart:async';
 import '../../consts.dart';
 import '../../service/api_service.dart';
+import '../mainPage.dart';
 
 class OTPScreen extends StatefulWidget {
   final String contact;

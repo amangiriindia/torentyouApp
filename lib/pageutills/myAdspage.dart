@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
-import 'package:try_test/components/no_data_found.dart';
+import '../components/no_data_found.dart';
 import '../service/api_service.dart';
 import '../consts.dart';
 import '../pages/Postadswithnavbar.dart';

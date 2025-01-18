@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:try_test/constant/user_constant.dart';
-import 'package:try_test/pages/settingsPage.dart';
-import 'package:try_test/pages/splashScreen.dart';
 import '../chat/chat_list_lookingfor_screen.dart';
 import '../chat/chat_list_rentreq_screen.dart';
 import '../chat/chat_list_screen.dart';
+import '../constant/user_constant.dart';
 import '../consts.dart';
 import '../pageutills/myAdsReviews.dart';
 import '../pageutills/myAdspage.dart';
@@ -12,6 +10,7 @@ import '../pageutills/myProfileUpdate.dart';
 import '../pageutills/mySubscription.dart';
 import '../pageutills/subscriptionPlan.dart';
 import 'Postadswithnavbar.dart';
+import 'splashScreen.dart';
 
 
 class ProfilePage extends StatefulWidget {

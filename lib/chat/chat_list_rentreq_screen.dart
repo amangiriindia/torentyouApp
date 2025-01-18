@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:try_test/constant/user_constant.dart';
-import 'dart:convert';
 import '../components/no_data_found.dart';
+import '../constant/user_constant.dart';
 import '../consts.dart';
 import '../service/api_service.dart';
 import 'chat_screen.dart'; // Your chat page import
@@ -98,8 +97,9 @@ class _ChatListRentreqScreenState extends State<ChatListRentreqScreen> {
         : chatRoom['reciver_id'];
 
     // Extract the first letter of the other user's email
+      final String productname = chatRoom['product_name'];
     final String firstLetter =
-        otherUserEmail.isNotEmpty ? otherUserEmail[0].toUpperCase() : '';
+        productname.isNotEmpty ? productname[0].toUpperCase() : '';
 
     return Card(
       shape: RoundedRectangleBorder(
@@ -132,10 +132,10 @@ class _ChatListRentreqScreenState extends State<ChatListRentreqScreen> {
           ),
         ),
         title: Text(
-          otherUserEmail,
+        productname,
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
-        subtitle: Text(chatRoom['product_name']),
+        subtitle: Text(otherUserEmail),
         trailing: const Icon(Icons.arrow_forward_ios),
         onTap: () {
           // Navigate to the chat page

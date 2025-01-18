@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:try_test/constant/user_constant.dart';
-import 'package:try_test/consts.dart';
+
+import '../constant/user_constant.dart';
+import '../consts.dart';
+
 
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({super.key});

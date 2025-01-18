@@ -3,11 +3,11 @@
 import 'dart:ffi';
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:try_test/constant/user_constant.dart';
 import '../chat/chat_screen.dart';
 import '../components/Button.dart';
 import '../components/grdient_button.dart';
 import '../components/product_details_full_screen.dart';
+import '../constant/user_constant.dart';
 import '../consts.dart';
 import '../service/api_service.dart';
 
