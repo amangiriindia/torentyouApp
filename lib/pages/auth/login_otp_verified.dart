@@ -203,43 +203,46 @@ class _OTPScreenState extends State<OTPScreen> {
               const SizedBox(height: 40),
 
               // Verify OTP Button with Loading State
-              GestureDetector(
-                onTap: _isLoading ? null : _verifyOtp,
-                child: Container(
-                  width: double.infinity,
-                  height: 60,
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [
-                        AppColors.primaryTextColor,
-                        AppColors.primaryColor
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: GestureDetector(
+                  onTap: _isLoading ? null : _verifyOtp,
+                  child: Container(
+                    width: double.infinity,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [
+                          AppColors.primaryTextColor,
+                          AppColors.primaryColor
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(30),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 10,
+                          offset: const Offset(0, 5),
+                        ),
                       ],
                     ),
-                    borderRadius: BorderRadius.circular(30),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 10,
-                        offset: const Offset(0, 5),
-                      ),
-                    ],
-                  ),
-                  child: Center(
-                    child: _isLoading
-                        ? const CircularProgressIndicator(
-                            color: Colors.white)
-                        : const Text(
-                            "Verify OTP",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
+                    child: Center(
+                      child: _isLoading
+                          ? const CircularProgressIndicator(
+                              color: Colors.white)
+                          : const Text(
+                              "Verify OTP",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
                             ),
-                          ),
+                    ),
                   ),
                 ),
               ),
-              const SizedBox(height: 110),
+              const SizedBox(height: 110),  
 
               // Animation Container
               Container(

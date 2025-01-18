@@ -147,7 +147,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           },
                         ),
                         const Divider(),
-                        const _SectionHeader(text: 'Profile & Settings'),
+                        const _SectionHeader(text: 'Profile'),
                         _ProfileOptionItem(
                           icon: Icons.person,
                           text: 'Profile',
@@ -160,18 +160,18 @@ class _ProfilePageState extends State<ProfilePage> {
                             );
                           },
                         ),
-                        _ProfileOptionItem(
-                          icon: Icons.settings,
-                          text: 'Settings',
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const SettingsPage(heading: 'Settings'),
-                              ),
-                            );
-                          },
-                        ),
+                        // _ProfileOptionItem(
+                        //   icon: Icons.settings,
+                        //   text: 'Settings',
+                        //   onTap: () {
+                        //     Navigator.push(
+                        //       context,
+                        //       MaterialPageRoute(
+                        //         builder: (context) => const SettingsPage(heading: 'Settings'),
+                        //       ),
+                        //     );
+                        //   },
+                        // ),
                         const Divider(),
                         const _SectionHeader(text: 'My Chats'),
                         _ProfileOptionItem(
