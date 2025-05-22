@@ -158,7 +158,7 @@ class _ChatListLookingforScreenState extends State<ChatListLookingforScreen> {
                 senderEmail: senderEmail,
                 receiverUserID: receiverUserId,
                 receiverUserEmail: otherUserEmail,
-                productImage: '',
+                productImage: productname ,
                 productName: '',
               ),
             ),

@@ -147,7 +147,7 @@ class _ChatListRentreqScreenState extends State<ChatListRentreqScreen> {
                 senderEmail: UserConstant.EMAIL,
                 receiverUserID: receiverUserId,
                 receiverUserEmail: otherUserEmail,
-                productName: '',
+                productName: productname,
                 productImage: '',
               ),
             ),
