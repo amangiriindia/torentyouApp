@@ -1,5 +1,4 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'local_notification_service.dart';
 
 class NotificationService {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
@@ -26,16 +25,12 @@ class NotificationService {
       print("Failed to retrieve FCM token.");
     }
 
-    // Initialize local notifications
-    LocalNotificationService.initialize();
-
     // Listen to foreground messages
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       if (message.notification != null) {
-        LocalNotificationService.showNotification(
-          title: message.notification!.title ?? "No Title",
-          body: message.notification!.body ?? "No Body",
-        );
+        print('Foreground notification received:');
+        print('Title: ${message.notification!.title}');
+        print('Body: ${message.notification!.body}');
       }
     });
 

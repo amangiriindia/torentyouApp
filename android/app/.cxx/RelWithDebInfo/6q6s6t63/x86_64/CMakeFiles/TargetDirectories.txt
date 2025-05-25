@@ -1,0 +1,2 @@
+/Users/prakashkumar/Desktop/swift pratice/firstproject/torentyouApp/android/app/.cxx/RelWithDebInfo/6q6s6t63/x86_64/CMakeFiles/edit_cache.dir
+/Users/prakashkumar/Desktop/swift pratice/firstproject/torentyouApp/android/app/.cxx/RelWithDebInfo/6q6s6t63/x86_64/CMakeFiles/rebuild_cache.dir
