@@ -22,7 +22,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
   void initState() {
     super.initState();
     _controller.addListener(() {
-      if (_controller.page == 4.0) { // Show button only on the 5th screen
+      if (_controller.page == 3.0) { // Show button only on the 5th screen
         setState(() => showGetStartedButton = true);
       } else {
         setState(() => showGetStartedButton = false);
@@ -60,8 +60,9 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
             children: [
               _buildOnboardingPage(
                 'Welcome To Rent You!',
-                'https://lottie.host/bc5d7e4e-4139-400f-9eeb-87ff3a9f5bff/HxSUif2vte.json',
+                'assets/anim/anim_11.json',
                 'Your gateway to hassle-free rentals.',
+                isLocal: true,
               ),
               _buildOnboardingPage(
                 'Connect with a Vast Network',
@@ -81,12 +82,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                 'Experience trusted and secure rental transactions.',
                 isLocal: true,
               ),
-              _buildOnboardingPage(
-                'Earn Rewards and Save More',
-                'assets/anim/anim_10.json',
-                'Unlock exclusive benefits and savings while renting.',
-                isLocal: true,
-              ),
+
             ],
           ),
           if (showGetStartedButton)
@@ -120,7 +116,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
             alignment: const Alignment(0, 0.9),
             child: SmoothPageIndicator(
               controller: _controller,
-              count: 5,
+              count: 4,
               effect: const JumpingDotEffect(
                 activeDotColor: AppColors.primaryColor,
               ),

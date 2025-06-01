@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert'; // For jsonDecode
+import 'dart:convert';
 
 import '../../consts.dart';
 
@@ -15,38 +16,56 @@ class CarouselSlider extends StatefulWidget {
 class _CarouselSliderState extends State<CarouselSlider> {
   int activeIndex = 0;
   final PageController pageController = PageController(viewportFraction: 1);
-  List<String> images = []; // Initialize as an empty list
+  List<String> images = [];
 
   @override
   void initState() {
     super.initState();
-    _fetchBannerImages(); // Fetch images on initialization
+    _loadStoredImages();      // Load from SharedPreferences first
+    _fetchBannerImages();     // Then fetch from backend to update
   }
 
+  /// Load banner image URLs from SharedPreferences (temporary cache)
+  Future<void> _loadStoredImages() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String>? cachedImages = prefs.getStringList('banner_images');
+
+    if (cachedImages != null && cachedImages.isNotEmpty) {
+      setState(() {
+        images = cachedImages;
+      });
+    }
+  }
+
+  /// Fetch fresh images from backend and update SharedPreferences + UI
   Future<void> _fetchBannerImages() async {
     final url = '${AppConstant.API_URL}api/v1/banner/all-banner';
 
     try {
       final response = await http.get(Uri.parse(url));
-       print(response.body);
-       print(response.statusCode);
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data['success'] == true) {
           final List<dynamic> results = data['results'];
-          setState(() {
-            images = results.map((banner) => banner['link'] as String).toList();
-          });
+          final List<String> fetchedImages =
+          results.map((banner) => banner['link'] as String).toList();
+
+          if (mounted) {
+            setState(() {
+              images = fetchedImages;
+            });
+          }
+
+          // Store in SharedPreferences
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          await prefs.setStringList('banner_images', fetchedImages);
         } else {
-          // Handle the case where the success key is false
-          print('Failed to fetch banners: ${data['message']}');
+          print('Backend returned failure: ${data['message']}');
         }
       } else {
-        // Handle response errors
         print('Failed to load data: ${response.statusCode}');
       }
     } catch (e) {
-      // Handle exceptions
       print('Error fetching banners: $e');
     }
   }
@@ -54,7 +73,7 @@ class _CarouselSliderState extends State<CarouselSlider> {
   @override
   Widget build(BuildContext context) {
     return images.isEmpty
-        ? Center(child: CircularProgressIndicator()) // Show loading spinner if images are not yet fetched
+        ? const Center(child: CircularProgressIndicator())
         : Stack(
       children: [
         SizedBox(
@@ -70,7 +89,8 @@ class _CarouselSliderState extends State<CarouselSlider> {
             itemBuilder: (context, index) {
               return Container(
                 decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20)),
+                  borderRadius: BorderRadius.circular(20),
+                ),
                 clipBehavior: Clip.antiAlias,
                 margin: const EdgeInsets.symmetric(horizontal: 5.0),
                 child: Image.network(

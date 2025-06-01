@@ -57,10 +57,6 @@ class _HomePageState extends State<HomePage> {
           child: RentalCategory(),
         ),
         ProductByCategory(
-          categoryName: 'Hotel',
-          categoryId: 7,
-        ),
-        ProductByCategory(
           categoryName: 'Furniture',
           categoryId: 5,
         ),

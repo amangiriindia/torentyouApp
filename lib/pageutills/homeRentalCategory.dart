@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert'; // For jsonDecode
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../consts.dart';
-import 'categoryWise.dart'; // Import CategoryWise page
+import 'categoryWise.dart';
 
 class RentalCategory extends StatefulWidget {
   const RentalCategory({Key? key}) : super(key: key);
@@ -17,37 +19,59 @@ class _RentalCategoryState extends State<RentalCategory> {
   @override
   void initState() {
     super.initState();
-    fetchCategories();
+    _loadCachedCategories();  // Load cached data first
+    fetchCategories();        // Then fetch from API
   }
 
+  /// Load categories from SharedPreferences
+  Future<void> _loadCachedCategories() async {
+    final prefs = await SharedPreferences.getInstance();
+    final cached = prefs.getString('rental_categories');
+    if (cached != null) {
+      final List<dynamic> decoded = jsonDecode(cached);
+      setState(() {
+        categories = List<Map<String, dynamic>>.from(decoded);
+      });
+    }
+  }
+
+  /// Fetch fresh data from API and update SharedPreferences
   Future<void> fetchCategories() async {
     const url = '${AppConstant.API_URL}api/v1/category/all-category';
     try {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        print(response.statusCode);
-        print(response.body);
-
         if (data['success']) {
-          setState(() {
-            categories = List<Map<String, dynamic>>.from(data['results'].map((category) {
-              return {
-                'id': category['id'] ?? 0, // Capture the category ID
-                'name': category['c_name'],
-                'image': category['image'],
-              };
-            }));
-          });
+          final List<Map<String, dynamic>> fetchedCategories =
+          List<Map<String, dynamic>>.from(data['results'].map((category) {
+            return {
+              'id': category['id'] ?? 0,
+              'name': category['c_name'],
+            };
+          }));
+
+          if (mounted) {
+            setState(() {
+              categories = fetchedCategories;
+            });
+          }
+
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('rental_categories', jsonEncode(fetchedCategories));
         }
       } else {
-        // Handle non-200 responses
         throw Exception('Failed to load categories');
       }
     } catch (e) {
-      // Handle error, e.g., by showing a message
       print('Error fetching categories: $e');
     }
+  }
+
+  /// Map category name to asset image path
+  String _getAssetPath(String categoryName) {
+    final key = categoryName.toLowerCase().replaceAll(" ", "_");
+    return 'assets/icon/$key.png';
   }
 
   @override
@@ -55,8 +79,8 @@ class _RentalCategoryState extends State<RentalCategory> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 3.0, vertical: 15.0),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 3.0, vertical: 15.0),
           child: Text(
             'Rental Category',
             style: TextStyle(
@@ -74,6 +98,8 @@ class _RentalCategoryState extends State<RentalCategory> {
             itemCount: categories.length,
             itemBuilder: (context, index) {
               final category = categories[index];
+              final imagePath = _getAssetPath(category['name']);
+
               return GestureDetector(
                 onTap: () {
                   Navigator.push(
@@ -81,7 +107,7 @@ class _RentalCategoryState extends State<RentalCategory> {
                     MaterialPageRoute(
                       builder: (context) => CategoryWise(
                         categoryName: category['name'],
-                        categoryId: category['id'] , // Pass the dynamic ID here
+                        categoryId: category['id'],
                       ),
                     ),
                   );
@@ -91,9 +117,9 @@ class _RentalCategoryState extends State<RentalCategory> {
                   child: Column(
                     children: [
                       Container(
-                        padding: const EdgeInsets.all(5.0), // Adding padding for white background
+                        padding: const EdgeInsets.all(5.0),
                         decoration: BoxDecoration(
-                          color: Colors.white, // White background
+                          color: Colors.white,
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
@@ -105,12 +131,12 @@ class _RentalCategoryState extends State<RentalCategory> {
                           ],
                         ),
                         child: Container(
-                          height: 60, // Adjusted to fit inside the padding
-                          width: 60,  // Adjusted to fit inside the padding
+                          height: 60,
+                          width: 60,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             image: DecorationImage(
-                              image: NetworkImage(category['image']),
+                              image: AssetImage(imagePath),
                               fit: BoxFit.contain,
                             ),
                           ),
@@ -131,9 +157,7 @@ class _RentalCategoryState extends State<RentalCategory> {
               );
             },
           )
-              : const Center(
-            child: CircularProgressIndicator(),
-          ),
+              : const Center(child: CircularProgressIndicator()),
         ),
       ],
     );
