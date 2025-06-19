@@ -19,12 +19,9 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
 
-def flutterVersionCode = localProperties.getProperty("flutter.versionCode") ?: "1"
-def flutterVersionName = localProperties.getProperty("flutter.versionName") ?: "1.0"
-
 android {
     namespace = "com.amzsoft.torentyou"
-    compileSdk 35
+    compileSdkVersion 35
     ndkVersion flutter.ndkVersion
 
     compileOptions {
@@ -39,10 +36,10 @@ android {
 
     defaultConfig {
         applicationId "com.amzsoft.torentyou"
-        minSdkVersion flutter.minSdkVersion
+        minSdkVersion 21
         targetSdkVersion 35
-        versionCode flutterVersionCode.toInteger()
-        versionName flutterVersionName
+        versionCode 2
+        versionName "1.0.2"
         multiDexEnabled true
     }
 
@@ -73,8 +70,12 @@ flutter {
 
 dependencies {
     implementation 'androidx.multidex:multidex:2.0.1'
-    implementation platform('com.google.firebase:firebase-bom:32.7.0')
+    implementation platform('com.google.firebase:firebase-bom:33.4.0')
     implementation 'com.google.firebase:firebase-messaging'
     implementation 'com.google.firebase:firebase-firestore'
+
+    // Remove the direct PhonePe SDK dependency as it's handled by the Flutter plugin
+    // implementation 'tech.phonepe.intent:intent-sdk:2.4.1'
+
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
 }

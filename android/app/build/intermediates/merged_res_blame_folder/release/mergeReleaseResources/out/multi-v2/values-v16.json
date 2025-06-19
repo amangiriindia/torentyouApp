@@ -1,0 +1,20 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.amzsoft.torentyou.app-mergeReleaseResources-50:/values-v16/values-v16.xml",
+            "map": [
+                {
+                    "source": "/Users/prakashkumar/.gradle/caches/8.9/transforms/a03d874f14851d5956acd8b31e3fd0e7/transformed/appcompat-1.3.1/res/values-v16/values-v16.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endLines": "5",
+                        "endColumns": "12",
+                        "endOffsets": "223"
+                    }
+                }
+            ]
+        }
+    ]
+}

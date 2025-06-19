@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:line_icons/line_icons.dart';
-
 import '../components/sideDrawer.dart';
 import '../consts.dart';
 import '../pageutills/notification_screen.dart';

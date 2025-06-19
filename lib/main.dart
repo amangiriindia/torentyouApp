@@ -1,14 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'components/test_google_map.dart';
+import 'package:try_app/payment/payment_gayways.dart';
 import 'constant/user_constant.dart';
 import 'firebase_options.dart';
-import 'pages/PostAdsPage.dart';
-import 'pages/auth/loginPage.dart';
-import 'pages/splashScreen.dart';
-import 'pageutills/notification_screen.dart'; // Make sure this file exists
 import 'package:firebase_messaging/firebase_messaging.dart';
-
 import 'service/database_helper.dart';
 
 void main() async {
@@ -29,7 +24,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: SplashScreen(),
+   home: PaymentScreen(),
     );
   }
 }
