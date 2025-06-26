@@ -75,7 +75,15 @@
   public static j$.time.Instant toInstant(java.util.Date);
 }
 -keep class j$.util.DesugarCollections {
+  public static java.util.List synchronizedList(java.util.List);
   public static java.util.Map synchronizedMap(java.util.Map);
+  public static java.util.Set synchronizedSet(java.util.Set);
+  public static java.util.Collection unmodifiableCollection(java.util.Collection);
+  public static java.util.List unmodifiableList(java.util.List);
+  public static java.util.Map unmodifiableMap(java.util.Map);
+  public static java.util.Set unmodifiableSet(java.util.Set);
+  public static java.util.SortedMap unmodifiableSortedMap(java.util.SortedMap);
+  public static java.util.SortedSet unmodifiableSortedSet(java.util.SortedSet);
 }
 -keep class j$.util.DesugarTimeZone {
   public static java.util.TimeZone getTimeZone(java.lang.String);

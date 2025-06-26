@@ -52,3 +52,4 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     name: name,
   );
 }
+

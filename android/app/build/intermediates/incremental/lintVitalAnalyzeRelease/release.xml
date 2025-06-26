@@ -6,7 +6,7 @@
     mergedManifest="build/intermediates/merged_manifest/release/processReleaseMainManifest/AndroidManifest.xml"
     proguardFiles="build/intermediates/default_proguard_files/global/proguard-android-optimize.txt-8.6.1:/opt/homebrew/Caskroom/flutter/3.27.3/flutter/packages/flutter_tools/gradle/flutter_proguard_rules.pro:proguard-rules.pro:build/intermediates/default_proguard_files/global/proguard-android-optimize.txt-8.6.1:proguard-rules.pro"
     partialResultsDir="build/intermediates/lint_vital_partial_results/release/lintVitalAnalyzeRelease/out"
-    desugaredMethodsFiles="/Users/prakashkumar/.gradle/caches/8.9/transforms/e45810f7e78724b3b3f6700440b89e1e/transformed/desugar_jdk_libs_configuration-2.0.4-desugar-lint.txt:/Users/prakashkumar/.gradle/caches/8.9/transforms/66e771c657bd686337a30dc21c7050f8/transformed/D8BackportedDesugaredMethods.txt">
+    desugaredMethodsFiles="/Users/prakashkumar/.gradle/caches/8.10.2/transforms/efaeba0b3349cde2286b5718b639849a/transformed/desugar_jdk_libs_configuration-2.1.2-desugar-lint.txt:/Users/prakashkumar/.gradle/caches/8.10.2/transforms/368aaedb786e4d0a8f80e57e0f7237f8/transformed/D8BackportedDesugaredMethods.txt">
   <buildFeatures
       coreLibraryDesugaring="true"
       namespacing="REQUIRED"/>
@@ -32,6 +32,6 @@
       applicationId="com.amzsoft.torentyou"
       generatedSourceFolders="build/generated/ap_generated_sources/release/out"
       generatedResourceFolders="build/generated/res/processReleaseGoogleServices:build/generated/res/resValues/release"
-      desugaredMethodsFiles="/Users/prakashkumar/.gradle/caches/8.9/transforms/e45810f7e78724b3b3f6700440b89e1e/transformed/desugar_jdk_libs_configuration-2.0.4-desugar-lint.txt:/Users/prakashkumar/.gradle/caches/8.9/transforms/66e771c657bd686337a30dc21c7050f8/transformed/D8BackportedDesugaredMethods.txt">
+      desugaredMethodsFiles="/Users/prakashkumar/.gradle/caches/8.10.2/transforms/efaeba0b3349cde2286b5718b639849a/transformed/desugar_jdk_libs_configuration-2.1.2-desugar-lint.txt:/Users/prakashkumar/.gradle/caches/8.10.2/transforms/368aaedb786e4d0a8f80e57e0f7237f8/transformed/D8BackportedDesugaredMethods.txt">
   </artifact>
 </variant>

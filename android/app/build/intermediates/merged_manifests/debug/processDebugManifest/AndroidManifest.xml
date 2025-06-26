@@ -118,7 +118,6 @@
         <meta-data
             android:name="com.phonepe.android.sdk.MerchantId"
             android:value="PGTESTPAYUAT" />
-        <!-- <meta-data android:name="com.phonepe.android.sdk.AppId" android:value="appId"/> -->
 
         <service
             android:name="com.google.firebase.messaging.FirebaseMessagingService"
@@ -308,9 +307,25 @@
             android:exported="false"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
         <activity
-            android:name="com.phonepe.intent.sdk.ui.b2bPg.B2bPgActivity"
+            android:name="com.phonepe.intent.sdk.ui.B2BPGActivity"
             android:exported="false"
             android:theme="@style/phonepeThemeInvisibleCompat" />
+        <activity
+            android:name="com.phonepe.intent.sdk.ui.TransactionActivity"
+            android:configChanges="orientation"
+            android:theme="@style/phonepeThemeInvisibleCompat"
+            android:windowSoftInputMode="stateHidden|adjustPan" />
+
+        <service
+            android:name="com.phonepe.intent.sdk.ui.PreCacheService"
+            android:exported="false" />
+
+        <activity
+            android:name="com.phonepe.intent.sdk.ui.OpenIntentTransactionActivity"
+            android:theme="@style/phonepeThemeInvisibleCompat" />
+        <activity
+            android:name="com.phonepe.intent.sdk.ui.UpiAppsSelectionDialogActivity"
+            android:theme="@style/phonepeThemeInvisible" />
 
         <provider
             android:name="androidx.startup.InitializationProvider"

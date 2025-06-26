@@ -1,11 +1,10 @@
 import 'dart:convert';
 import 'dart:math';
 import 'package:crypto/crypto.dart';
-import 'package:phonepe_payment_sdk/phonepe_payment_sdk.dart';
-
+import 'package:http/http.dart' as http;
 import '../../constant/env_config.dart';
 import '../../constant/phone_pay_config.dart';
-
+import 'package:phonepe_payment_sdk/phonepe_payment_sdk.dart';
 
 class PaymentService {
   static bool _isInitialized = false;
@@ -13,16 +12,13 @@ class PaymentService {
   /// Initializes the PhonePe SDK
   static Future<bool> initializePhonePe() async {
     try {
-      if (_isInitialized) {
-        print("PhonePe SDK already initialized");
-        return true;
-      }
+
 
       bool result = await PhonePePaymentSdk.init(
-        PhonePeConfig.environment, // "UAT" for testing
-        PhonePeConfig.merchantId,
-        PhonePeConfig.flowId, // Unique flow ID
-        true, // Enable logging for debugging
+        'SANDBOX',
+        'KUAT',
+        "KUAT",
+        true, // Enable logging
       );
 
       _isInitialized = result;
@@ -48,6 +44,29 @@ class PaymentService {
     return "${hash.toString()}###${PhonePeConfig.apiKeyIndex}";
   }
 
+  /// Checks transaction status via API
+  static Future<Map<String, dynamic>> checkTransactionStatus(String transactionId) async {
+    try {
+      final endpoint = "/pg/v1/status/${PhonePeConfig.merchantId}/$transactionId";
+      final checksum = generateChecksum("", endpoint);
+
+      final response = await http.get(
+        Uri.parse("${PhonePeConfig.hostUrl}$endpoint"),
+        headers: {
+          "Content-Type": "application/json",
+          "X-VERIFY": checksum,
+          "X-MERCHANT-ID": PhonePeConfig.merchantId,
+        },
+      );
+
+      print("Status check response: ${response.body}");
+      return jsonDecode(response.body);
+    } catch (e) {
+      print("Status check error: $e");
+      return {"success": false, "error": e.toString()};
+    }
+  }
+
   /// Starts a payment transaction
   static Future<Map<String, dynamic>> startPayment({
     required double amount,
@@ -55,50 +74,51 @@ class PaymentService {
     String? mobileNumber,
   }) async {
     try {
-      // Ensure SDK is initialized
       if (!_isInitialized) {
         final initResult = await initializePhonePe();
         if (!initResult) {
-          return {
-            'success': false,
-            'error': 'PhonePe SDK initialization failed',
-          };
+          return {'success': false, 'error': 'PhonePe SDK initialization failed'};
         }
       }
 
       final transactionId = generateTransactionId();
       final amountInPaise = (amount * 100).toInt();
 
-      // Construct payment request for PAY_PAGE
       final paymentRequest = {
-        "merchantId": PhonePeConfig.merchantId,
+        "merchantId": 'M22Z0YGPLTMPGUAT',
         "merchantTransactionId": transactionId,
         "merchantUserId": userId,
         "amount": amountInPaise,
-        "redirectUrl": EnvConfig.REDIRECT_URL, // e.g., "https://webhook.site/redirect-url"
-        "redirectMode": "REDIRECT", // Correct for PAY_PAGE
-        "callbackUrl": EnvConfig.CALLBACK_URL, // e.g., "https://webhook.site/callback-url"
-        "mobileNumber": mobileNumber ?? "",
+        "callbackUrl": EnvConfig.CALLBACK_URL,
+        "mobileNumber": mobileNumber ?? "9999999999",
         "paymentInstrument": {"type": "PAY_PAGE"}
       };
 
-      // Encode payload to base64
-      final payload = base64.encode(utf8.encode(jsonEncode(paymentRequest)));
-      const endpoint = "/pg/v1/pay";
+      final payloadJson = jsonEncode(paymentRequest);
+      final payload = base64.encode(utf8.encode(payloadJson));
 
-      // Start transaction (assuming your SDK uses startTransaction)
+      print("Payload JSON: $payloadJson");
+      print("Base64 Payload: $payload");
+
+      final endpoint = "/pg/v1/pay";
+      final checksum = generateChecksum(payload, endpoint);
+
       final response = await PhonePePaymentSdk.startTransaction(
-         payload,
-         PhonePeConfig.appSchema,
+        'ewogICJtZXJjaGFudElkIjogIk0yMlowWUdQTFRNUEdVQVQiLAogICJtZXJjaGFudFRyYW5zYWN0aW9uSWQiOiAiTVQ3ODUwNTkwMDY4MTg4MTA0IiwKICAibWVyY2hhbnRVc2VySWQiOiAiTVVJRDEyMyIsCiAgImFtb3VudCI6IDEwMDAwLAogICJjYWxsYmFja1VybCI6ICJodHRwczovL3dlYmhvb2suc2l0ZS9jYWxsYmFjay11cmwiLAogICJtb2JpbGVOdW1iZXIiOiAiOTk5OTk5OTk5OSIsCiAgInBheW1lbnRJbnN0cnVtZW50IjogewogICAgInR5cGUiOiAiUEFZX1BBR0UiCiAgfQp9',
+        "",
+        'd02a119170e37ceee3ea2fac19f41c735ca8e4aae7a3c4444592b15af19ab486###1',
+        ""
       );
 
       print("Payment response: $response");
 
-      if (response == null) {
+      if (response == null || response['status'] == 'PENDING') {
+        final statusResponse = await checkTransactionStatus(transactionId);
         return {
-          'success': false,
+          'success': statusResponse['success'] == true,
           'transactionId': transactionId,
-          'error': 'Null response from PhonePe SDK',
+          'response': statusResponse,
+          'error': statusResponse['message'] ?? 'Transaction status check failed',
         };
       }
 
@@ -106,6 +126,7 @@ class PaymentService {
         'success': response['status'] == 'SUCCESS',
         'transactionId': transactionId,
         'response': response,
+        'error': response['error'] ?? null,
       };
     } catch (e) {
       print("Payment error: $e");
