@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:try_app/pages/splashScreen.dart';
 import 'package:try_app/payment/payment_gayways.dart';
 import 'constant/user_constant.dart';
 import 'firebase_options.dart';
@@ -24,7 +25,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-   home: PaymentScreen(),
+   home: SplashScreen(),
     );
   }
 }

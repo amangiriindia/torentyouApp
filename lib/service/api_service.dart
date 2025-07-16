@@ -236,7 +236,8 @@ class ApiService {
     final String url = '${AppConstant.API_URL}api/v1/usersubscription/single-user-subscription/$userId';
     try {
       final response = await http.get(Uri.parse(url));
-
+        print(response.statusCode);
+        print(response.body);
       if (response.statusCode == 200) {
         final List<dynamic> responseData = json.decode(response.body);
         return responseData.map<Map<String, dynamic>>((data) {
@@ -260,6 +261,40 @@ class ApiService {
       throw Exception('Error fetching subscriptions: $e');
     }
   }
+
+
+  Future<bool> createUserSubscription({
+    required int userId,
+    required int planId,
+  }) async {
+    final String url = '${AppConstant.API_URL}api/v1/usersubscription/create-user-subscription';
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'user_id': userId,
+          'plan_id': planId,
+        }),
+      );
+      print(response.statusCode);
+      print(response.body);
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data['success'] == true;
+      } else {
+        print('❌ Failed to create subscription: ${response.body}');
+        return false;
+      }
+    } catch (e) {
+      print('❌ Error: $e');
+      return false;
+    }
+  }
+
 
 // for get prodct review 
  Future<List<Review>> fetchReviews(String productId) async {

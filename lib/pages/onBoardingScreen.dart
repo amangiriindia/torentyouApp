@@ -22,7 +22,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
   void initState() {
     super.initState();
     _controller.addListener(() {
-      if (_controller.page == 3.0) { // Show button only on the 5th screen
+      if (_controller.page == 3.0) { // Show button only on the 4th screen
         setState(() => showGetStartedButton = true);
       } else {
         setState(() => showGetStartedButton = false);
@@ -41,7 +41,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
     }
 
     PermissionStatus notificationStatus =
-        await Permission.notification.request();
+    await Permission.notification.request();
     if (notificationStatus.isDenied || notificationStatus.isPermanentlyDenied) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -60,29 +60,32 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
             children: [
               _buildOnboardingPage(
                 'Welcome To Rent You!',
-                'assets/anim/anim_11.json',
+                'assets/images/onboarding1.jpg',
                 'Your gateway to hassle-free rentals.',
                 isLocal: true,
+                isImage: true, // Add this parameter to indicate it's an image
               ),
               _buildOnboardingPage(
                 'Connect with a Vast Network',
                 'assets/anim/anim_7.json',
                 'Discover endless rental opportunities around you.',
                 isLocal: true,
+                isImage: false, // This is an animation
               ),
               _buildOnboardingPage(
                 'Explore Everywhere',
                 'assets/anim/anim_8.json',
                 'Find rentals in every corner, anytime, anywhere.',
                 isLocal: true,
+                isImage: false, // This is an animation
               ),
               _buildOnboardingPage(
                 'Secure and Reliable Rentals',
                 'assets/anim/anim_9.json',
                 'Experience trusted and secure rental transactions.',
                 isLocal: true,
+                isImage: false, // This is an animation
               ),
-
             ],
           ),
           if (showGetStartedButton)
@@ -129,20 +132,39 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
 
   Widget _buildOnboardingPage(
       String title, String? imagePath, String description,
-      {bool isLocal = false}) {
+      {bool isLocal = false, bool isImage = false}) {
     return Container(
       padding: const EdgeInsets.all(20),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          isLocal
+          // Check if it's an image or animation
+          isImage
+              ? Container(
+            height: 400,
+            width: 800,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: Image.asset(
+                imagePath!,
+                height: 400,
+                width: 800,
+                fit: BoxFit.contain,
+              ),
+            ),
+          )
+              : isLocal
               ? Lottie.asset(imagePath!,
-                  height: 400, width: 800, fit: BoxFit.contain)
+              height: 400, width: 800, fit: BoxFit.contain)
               : Lottie.network(imagePath!,
-                  height: 400, width: 800, fit: BoxFit.contain),
+              height: 400, width: 800, fit: BoxFit.contain),
+          const SizedBox(height: 30),
           Text(title,
               style:
-                  const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+              const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
           const SizedBox(height: 20),
           Text(
             description,

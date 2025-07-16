@@ -84,30 +84,54 @@ class PaymentService {
       final transactionId = generateTransactionId();
       final amountInPaise = (amount * 100).toInt();
 
-      final paymentRequest = {
-        "merchantId": 'M22Z0YGPLTMPGUAT',
-        "merchantTransactionId": transactionId,
-        "merchantUserId": userId,
-        "amount": amountInPaise,
-        "callbackUrl": EnvConfig.CALLBACK_URL,
-        "mobileNumber": mobileNumber ?? "9999999999",
-        "paymentInstrument": {"type": "PAY_PAGE"}
-      };
+      // final paymentRequest = {
+      //   "merchantId": 'M22Z0YGPLTMPGUAT',
+      //   "merchantTransactionId": transactionId,
+      //   "merchantUserId": userId,
+      //   "amount": amountInPaise,
+      //   "callbackUrl": EnvConfig.CALLBACK_URL,
+      //   "mobileNumber": mobileNumber ?? "9999999999",
+      //   "paymentInstrument": {"type": "PAY_PAGE"}
+      // };
 
-      final payloadJson = jsonEncode(paymentRequest);
+
+
+   final  paymentRequest = {
+     "merchantId": PhonePeConfig.testMerchantId,
+     "merchantTransactionId": transactionId,
+     "merchantUserId": userId,
+     "amount": amountInPaise,
+     "callbackUrl": EnvConfig.CALLBACK_URL,
+     "mobileNumber": mobileNumber ?? "9999999999",
+     "paymentInstrument": {
+       "type": "PAY_PAGE"
+     }
+   };
+
+
+
+    final payloadJson = jsonEncode(paymentRequest);
       final payload = base64.encode(utf8.encode(payloadJson));
 
-      print("Payload JSON: $payloadJson");
+     // print("Payload JSON: $payloadJson");
       print("Base64 Payload: $payload");
 
-      final endpoint = "/pg/v1/pay";
-      final checksum = generateChecksum(payload, endpoint);
+     // final endpoint = "/pg/v1/pay"+"${PhonePeConfig.testApiKey}"+"###"+"${PhonePeConfig.testApiKeyIndex}";
+      final checksum = generateChecksum(payload, "/pg/v1/pay");
+      print("checksome $checksum");
+
+      // final response = await PhonePePaymentSdk.startTransaction(
+      //   'ewogICJtZXJjaGFudElkIjogIk0yMlowWUdQTFRNUEdVQVQiLAogICJtZXJjaGFudFRyYW5zYWN0aW9uSWQiOiAiTVQ3ODUwNTkwMDY4MTg4MTA0IiwKICAibWVyY2hhbnRVc2VySWQiOiAiTVVJRDEyMyIsCiAgImFtb3VudCI6IDEwMDAwLAogICJjYWxsYmFja1VybCI6ICJodHRwczovL3dlYmhvb2suc2l0ZS9jYWxsYmFjay11cmwiLAogICJtb2JpbGVOdW1iZXIiOiAiOTk5OTk5OTk5OSIsCiAgInBheW1lbnRJbnN0cnVtZW50IjogewogICAgInR5cGUiOiAiUEFZX1BBR0UiCiAgfQp9',
+      //   "",
+      //   'd02a119170e37ceee3ea2fac19f41c735ca8e4aae7a3c4444592b15af19ab486###1',
+      //   ""
+      // );
 
       final response = await PhonePePaymentSdk.startTransaction(
-        'ewogICJtZXJjaGFudElkIjogIk0yMlowWUdQTFRNUEdVQVQiLAogICJtZXJjaGFudFRyYW5zYWN0aW9uSWQiOiAiTVQ3ODUwNTkwMDY4MTg4MTA0IiwKICAibWVyY2hhbnRVc2VySWQiOiAiTVVJRDEyMyIsCiAgImFtb3VudCI6IDEwMDAwLAogICJjYWxsYmFja1VybCI6ICJodHRwczovL3dlYmhvb2suc2l0ZS9jYWxsYmFjay11cmwiLAogICJtb2JpbGVOdW1iZXIiOiAiOTk5OTk5OTk5OSIsCiAgInBheW1lbnRJbnN0cnVtZW50IjogewogICAgInR5cGUiOiAiUEFZX1BBR0UiCiAgfQp9',
-        "",
-        'd02a119170e37ceee3ea2fac19f41c735ca8e4aae7a3c4444592b15af19ab486###1',
-        ""
+          payload, //base64encodeed value
+          "",
+          checksum,
+          ""
       );
 
       print("Payment response: $response");

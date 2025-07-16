@@ -114,7 +114,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const SubscriptionPlanPage(),
+                                builder: (context) => SubscriptionPlanPage(userId:UserConstant.USER_ID , ),
                               ),
                             );
                           },

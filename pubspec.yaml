@@ -71,6 +71,7 @@ flutter:
     - assets/icon/property.png
     - assets/icon/tools.png
     - assets/icon/vehicle.png
+    - assets/images/onboarding1.jpg
 
 
 flutter_icons:

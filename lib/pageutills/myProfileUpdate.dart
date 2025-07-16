@@ -1,10 +1,10 @@
-import 'dart:convert'; // For encoding data
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../components/Button.dart';
 import '../constant/user_constant.dart';
 import '../consts.dart';
-import 'package:http/http.dart' as http; // For making HTTP requests
+import '../service/auth_service.dart';
+
 
 class UpdateProfilePage extends StatefulWidget {
   const UpdateProfilePage({super.key});
@@ -17,7 +17,7 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
   bool _isEditing = false;
   bool _showChangePassword = false;
   bool _isLoading = false; // For showing loading state
-  late int userId=0;
+  late int userId = 0;
 
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _contactController = TextEditingController();
@@ -34,7 +34,6 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
 
   // Fetch user data from SharedPreferences
   Future<void> _loadUserData() async {
-    
     setState(() {
       _nameController.text = UserConstant.NAME ?? 'Enter your name';
       _contactController.text = UserConstant.CONTACT ?? 'Enter your Phone Number';
@@ -43,7 +42,6 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
       userId = UserConstant.USER_ID ?? 0;
     });
   }
-
 
   void _toggleEditing() {
     setState(() {
@@ -57,41 +55,30 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
     });
   }
 
-
-
-
-  // Function to handle profile update
+  // Function to handle profile update using API service
   Future<void> _updateProfile() async {
     setState(() {
       _isLoading = true; // Show loading indicator
     });
 
-   // Retrieve user ID from SharedPreferences
-
-    // API request to update profile
     try {
-      var url = Uri.parse('${AppConstant.API_URL}api/v1/seller/user-update-profile');
-      var response = await http.post(
-        url,
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode({
-          "id": userId,
-          "name": _nameController.text,
-          "email": _emailController.text,
-          "contact": _contactController.text,
-          "about": _aboutController.text,
-        }),
+      // Call API service
+      final result = await UserService.updateProfile(
+        userId: userId,
+        name: _nameController.text,
+        email: _emailController.text,
+        contact: _contactController.text,
+        about: _aboutController.text,
       );
 
-      var responseData = jsonDecode(response.body);
-
-      if (response.statusCode == 200 && responseData['success']) {
+      if (result['success']) {
         // Show success message
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(responseData['message']),
+          content: Text(result['message']),
         ));
-        final SharedPreferences prefs = await SharedPreferences.getInstance();
+
         // Update SharedPreferences
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.setString('userName', _nameController.text);
         prefs.setString('userPhone', _contactController.text);
         prefs.setString('userAbout', _aboutController.text);
@@ -101,13 +88,13 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
       } else {
         // Show error message
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(responseData['message'] ?? 'Failed to update profile'),
+          content: Text(result['message']),
         ));
       }
     } catch (e) {
       // Show error message
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Error: ${e.toString()}'),
+        content: Text('Unexpected error: ${e.toString()}'),
       ));
     } finally {
       setState(() {
@@ -116,10 +103,7 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
     }
   }
 
-
-
-
-  // Function to handle password change
+  // Function to handle password change using API service
   Future<void> _changePassword() async {
     if (_newPasswordController.text != _confirmPasswordController.text) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -133,37 +117,33 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
     });
 
     try {
-      // Replace with your API URL for changing the password
-      var url = Uri.parse('${AppConstant.API_URL}api/v1/seller/user-change-password');
-      var response = await http.post(
-        url,
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode({
-          "id": userId,
-          "password": _newPasswordController.text,
-        }),
+      // Call API service
+      final result = await UserService.changePassword(
+        userId: userId,
+        newPassword: _newPasswordController.text,
       );
 
-      var responseData = jsonDecode(response.body);
-      print(response.body);
-      print(response.statusCode);
-      print(userId);
-      if (response.statusCode == 200 && responseData['success']) {
+      if (result['success']) {
         // Show success message
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(responseData['message']),
+          content: Text(result['message']),
         ));
+
+        // Clear password fields
+        _newPasswordController.clear();
+        _confirmPasswordController.clear();
+
         _toggleChangePassword(); // Exit change password mode after a successful update
       } else {
         // Show error message
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(responseData['message'] ?? 'Failed to change password'),
+          content: Text(result['message']),
         ));
       }
     } catch (e) {
       // Show error message
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Error: ${e.toString()}'),
+        content: Text('Unexpected error: ${e.toString()}'),
       ));
     } finally {
       setState(() {
@@ -171,7 +151,6 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
       });
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -233,7 +212,7 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: ElevatedButton(
-                  onPressed: _updateProfile, // Call the API function here
+                  onPressed: _isLoading ? null : _updateProfile, // Disable button when loading
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.transparent, // Transparent to show gradient
                     padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
@@ -243,7 +222,7 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                     elevation: 0, // Remove shadow
                   ),
                   child: _isLoading
-                      ? const CircularProgressIndicator() // Show loading indicator while updating
+                      ? const CircularProgressIndicator(color: Colors.white) // Show loading indicator while updating
                       : const Text(
                     'Update Profile',
                     style: TextStyle(
@@ -280,10 +259,7 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: ElevatedButton(
-                      onPressed: () {
-                        _changePassword();
-                        // Add functionality to change password
-                      },
+                      onPressed: _isLoading ? null : _changePassword, // Disable button when loading
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.transparent, // Transparent to show gradient
                         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
@@ -292,7 +268,9 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                         ),
                         elevation: 0, // Remove shadow
                       ),
-                      child: const Text(
+                      child: _isLoading
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : const Text(
                         'Change Password',
                         style: TextStyle(
                           color: Colors.white, // White text color
