@@ -193,7 +193,7 @@ class _OTPScreenState extends State<OTPScreen> {
                           name: nameController.text.trim(),
                           email: emailController.text.trim(),
                           contact: widget.contact,
-                          about: '', // Empty about for now
+                          about: 'User', // Empty about for now
                         );
 
                         if (result['success']) {

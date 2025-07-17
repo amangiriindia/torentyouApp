@@ -21,8 +21,9 @@ class _CarouselSliderState extends State<CarouselSlider> {
   @override
   void initState() {
     super.initState();
-    _loadStoredImages();      // Load from SharedPreferences first
-    _fetchBannerImages();     // Then fetch from backend to update
+       _loadLocalImages();
+    // _loadStoredImages();      // Load from SharedPreferences first
+    // _fetchBannerImages();     // Then fetch from backend to update
   }
 
   /// Load banner image URLs from SharedPreferences (temporary cache)
@@ -35,6 +36,20 @@ class _CarouselSliderState extends State<CarouselSlider> {
         images = cachedImages;
       });
     }
+  }
+
+
+  void _loadLocalImages() {
+    setState(() {
+      images = [
+        'assets/images/slider_1.jpg',
+        'assets/images/slider_2.jpeg',
+        'assets/images/slider_3.jpg',
+        'assets/images/slider_4.jpg',
+        'assets/images/slider_5.jpg',
+        'assets/images/slider_6.jpg',
+      ];
+    });
   }
 
   /// Fetch fresh images from backend and update SharedPreferences + UI
@@ -93,7 +108,7 @@ class _CarouselSliderState extends State<CarouselSlider> {
                 ),
                 clipBehavior: Clip.antiAlias,
                 margin: const EdgeInsets.symmetric(horizontal: 5.0),
-                child: Image.network(
+                child: Image.asset(
                   images[index],
                   fit: BoxFit.cover,
                 ),

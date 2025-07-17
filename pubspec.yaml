@@ -71,11 +71,18 @@ flutter:
     - assets/icon/property.png
     - assets/icon/tools.png
     - assets/icon/vehicle.png
+    - assets/icon/logo.png
     - assets/images/onboarding1.jpg
+    - assets/images/slider_1.jpg
+    - assets/images/slider_2.jpeg
+    - assets/images/slider_3.jpg
+    - assets/images/slider_4.jpg
+    - assets/images/slider_5.jpg
+    - assets/images/slider_6.jpg
 
 
 flutter_icons:
   android: true
   ios: true
-  image_path: assets/logo.png
-  android_adaptive_icon_foreground: assets/logo.png
+  image_path: assets/icon/logo.png
+  android_adaptive_icon_foreground: assets/icon/logo.png
