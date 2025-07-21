@@ -234,6 +234,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shimmer/shimmer.dart';
+import 'package:try_app/constant/user_constant.dart';
 import '../consts.dart';
 import '../pageutills/categoryWise.dart';
 
@@ -342,7 +343,7 @@ class _SideDrawerState extends State<SideDrawer> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final userName = "Hello, Try user"; // Replace with dynamic name logic
+    final userName = "${UserConstant.NAME}"; // Replace with dynamic name logic
     final userInitials = userName
         .split(' ')
         .map((e) => e[0])
@@ -386,7 +387,7 @@ class _SideDrawerState extends State<SideDrawer> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    userName,
+                     'Hello $userName',
                     style: theme.textTheme.bodyLarge?.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,

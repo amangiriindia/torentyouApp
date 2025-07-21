@@ -103,7 +103,6 @@ class _OTPScreenState extends State<OTPScreen> {
 
   void _showProfileCompletionDialog() {
     final TextEditingController nameController = TextEditingController();
-    final TextEditingController emailController = TextEditingController();
     final GlobalKey<FormState> formKey = GlobalKey<FormState>();
     bool isUpdatingProfile = false;
 
@@ -145,40 +144,11 @@ class _OTPScreenState extends State<OTPScreen> {
                         return null;
                       },
                     ),
-                    const SizedBox(height: 15),
-                    TextFormField(
-                      controller: emailController,
-                      decoration: const InputDecoration(
-                        labelText: 'Email *',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.email),
-                      ),
-                      keyboardType: TextInputType.emailAddress,
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return 'Please enter your email';
-                        }
-                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-                          return 'Please enter a valid email';
-                        }
-                        return null;
-                      },
-                    ),
                   ],
                 ),
               ),
               actions: [
-                TextButton(
-                  onPressed: isUpdatingProfile ? null : () {
-                    // Skip button - navigate to main screen without updating profile
-                    Navigator.of(context).pop();
-                    _navigateToMainScreen();
-                  },
-                  child: const Text(
-                    'Skip',
-                    style: TextStyle(color: Colors.grey),
-                  ),
-                ),
+
                 ElevatedButton(
                   onPressed: isUpdatingProfile ? null : () async {
                     if (formKey.currentState!.validate()) {
@@ -191,7 +161,7 @@ class _OTPScreenState extends State<OTPScreen> {
                         final result = await UserService.updateProfile(
                           userId: widget.userId,
                           name: nameController.text.trim(),
-                          email: emailController.text.trim(),
+                          email: "",
                           contact: widget.contact,
                           about: 'User', // Empty about for now
                         );

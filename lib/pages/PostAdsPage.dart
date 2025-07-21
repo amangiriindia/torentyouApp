@@ -50,7 +50,6 @@ class _PostAdsContentState extends State<PostAdsContent> {
   late TextEditingController locationController = TextEditingController();
   final TextEditingController monthlyRentalController = TextEditingController();
   final TextEditingController depositController = TextEditingController();
-  final TextEditingController tagsController = TextEditingController();
   final TextEditingController shortDescriptionController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
 
@@ -73,7 +72,6 @@ class _PostAdsContentState extends State<PostAdsContent> {
     locationController.dispose();
     monthlyRentalController.dispose();
     depositController.dispose();
-    tagsController.dispose();
     shortDescriptionController.dispose();
     descriptionController.dispose();
     durationValueController.dispose();
@@ -558,7 +556,7 @@ class _PostAdsContentState extends State<PostAdsContent> {
       "monthly_rental": monthlyRental,
       "deposit": deposit,
       "description": descriptionController.text,
-      "tags": tagsController.text,
+      "tags":  "tag",
       "packages": packageOption == true ? "Yes" : "No",
       "short_description": shortDescriptionController.text,
       "location": locationController.text,
@@ -697,12 +695,6 @@ class _PostAdsContentState extends State<PostAdsContent> {
               hintText: 'Enter deposit',
               controller: depositController,
               prefixText: '₹ ',
-            ),
-            const SizedBox(height: 20),
-            const _Label(text: 'Tags'),
-            _InputField(
-              hintText: 'Enter tags, separated by commas',
-              controller: tagsController,
             ),
             const SizedBox(height: 20),
             const _Label(text: 'Short Description'),

@@ -19,7 +19,7 @@ class UserConstant {
 
   // Retrieve user data
   static int get USER_ID => _prefs.getInt('USER_ID') ?? 0;
-  static String get NAME => _prefs.getString('NAME') ?? '';
+  static String get NAME => _prefs.getString('NAME') ?? 'Try User';
   static String get EMAIL => _prefs.getString('EMAIL') ?? '';
   static String get CONTACT => _prefs.getString('CONTACT') ?? '';
   static String get ABOUT => _prefs.getString('ABOUT') ?? '';
