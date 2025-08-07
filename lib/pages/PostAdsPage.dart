@@ -683,9 +683,9 @@ class _PostAdsContentState extends State<PostAdsContent> {
               controller: locationController,
             ),
             const SizedBox(height: 20),
-            const _Label(text: 'Monthly Rental*'),
+            const _Label(text: 'Rental amount*'),
             _InputField(
-              hintText: 'Enter monthly rental',
+              hintText: 'Enter rental amount ',
               controller: monthlyRentalController,
               prefixText: '₹ ',
             ),

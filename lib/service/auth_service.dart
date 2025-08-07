@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../constant/user_constant.dart';
 import '../consts.dart';
 
 class UserService {
@@ -15,6 +16,11 @@ class UserService {
     required String about,
   }) async {
     try {
+
+      print(userId);
+      print(name);
+      print(email);
+      print(contact);
       var url = Uri.parse('${baseUrl}api/v1/seller/user-update-profile');
 
       var response = await http.post(
@@ -28,9 +34,11 @@ class UserService {
           "about": about,
         }),
       );
-
+       print(response.body);
+       print(response.statusCode);
       var responseData = jsonDecode(response.body);
-
+      // Save user data
+      await UserConstant.saveUserData(responseData['data']);
       return {
         'success': response.statusCode == 200 && responseData['success'],
         'message': responseData['message'] ?? 'Unknown error occurred',

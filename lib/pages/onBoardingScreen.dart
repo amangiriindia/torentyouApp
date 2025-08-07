@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../components/Button.dart';
 import '../consts.dart';
 import 'auth/loginPage.dart';
@@ -22,7 +23,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
   void initState() {
     super.initState();
     _controller.addListener(() {
-      if (_controller.page == 3.0) { // Show button only on the 4th screen
+      if (_controller.page == 3.0) {
         setState(() => showGetStartedButton = true);
       } else {
         setState(() => showGetStartedButton = false);
@@ -34,20 +35,32 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
     PermissionStatus locationStatus = await Permission.location.request();
     if (locationStatus.isDenied || locationStatus.isPermanentlyDenied) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text(
-                'Location permission is required for better functionality.')),
+        SnackBar(
+          content: Text(
+            'Location permission is required for better functionality.',
+            style: TextStyle(fontSize: 14.sp),
+          ),
+        ),
       );
     }
 
-    PermissionStatus notificationStatus =
-    await Permission.notification.request();
+    PermissionStatus notificationStatus = await Permission.notification.request();
     if (notificationStatus.isDenied || notificationStatus.isPermanentlyDenied) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Notification permission is required for updates.')),
+        SnackBar(
+          content: Text(
+            'Notification permission is required for updates.',
+            style: TextStyle(fontSize: 14.sp),
+          ),
+        ),
       );
     }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -63,28 +76,28 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                 'assets/images/onboarding1.jpg',
                 'Your gateway to hassle-free rentals.',
                 isLocal: true,
-                isImage: true, // Add this parameter to indicate it's an image
+                isImage: true,
               ),
               _buildOnboardingPage(
                 'Connect with a Vast Network',
                 'assets/anim/anim_7.json',
                 'Discover endless rental opportunities around you.',
                 isLocal: true,
-                isImage: false, // This is an animation
+                isImage: false,
               ),
               _buildOnboardingPage(
                 'Explore Everywhere',
                 'assets/anim/anim_8.json',
                 'Find rentals in every corner, anytime, anywhere.',
                 isLocal: true,
-                isImage: false, // This is an animation
+                isImage: false,
               ),
               _buildOnboardingPage(
                 'Secure and Reliable Rentals',
                 'assets/anim/anim_9.json',
                 'Experience trusted and secure rental transactions.',
                 isLocal: true,
-                isImage: false, // This is an animation
+                isImage: false,
               ),
             ],
           ),
@@ -92,7 +105,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
             Align(
               alignment: const Alignment(0, 0.75),
               child: Padding(
-                padding: const EdgeInsets.all(20.0),
+                padding: EdgeInsets.all(20.w),
                 child: AnimatedOpacity(
                   opacity: showGetStartedButton ? 1.0 : 0.0,
                   duration: const Duration(milliseconds: 300),
@@ -103,14 +116,17 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const LoginPage()),
+                          builder: (context) => const LoginPage(),
+                        ),
                       );
                     },
                     title: "Get Started",
-                    gradient: const LinearGradient(colors: [
-                      AppColors.primaryColor,
-                      AppColors.primaryTextColor,
-                    ]),
+                    gradient: const LinearGradient(
+                      colors: [
+                        AppColors.primaryColor,
+                        AppColors.primaryTextColor,
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -120,8 +136,10 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
             child: SmoothPageIndicator(
               controller: _controller,
               count: 4,
-              effect: const JumpingDotEffect(
+              effect: JumpingDotEffect(
                 activeDotColor: AppColors.primaryColor,
+                dotHeight: 12.h,
+                dotWidth: 12.w,
               ),
             ),
           ),
@@ -131,47 +149,75 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
   }
 
   Widget _buildOnboardingPage(
-      String title, String? imagePath, String description,
-      {bool isLocal = false, bool isImage = false}) {
+      String title,
+      String? imagePath,
+      String description, {
+        bool isLocal = false,
+        bool isImage = false,
+      }) {
     return Container(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          // Check if it's an image or animation
-          isImage
-              ? Container(
-            height: 400,
-            width: 800,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: Image.asset(
-                imagePath!,
-                height: 400,
-                width: 800,
-                fit: BoxFit.contain,
+      padding: EdgeInsets.all(20.w),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            isImage
+                ? Container(
+              height: 400.h,
+              width: 1.sw, // Use screen width for better responsiveness
+              constraints: BoxConstraints(maxWidth: 600.w),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20.r),
               ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20.r),
+                child: Image.asset(
+                  imagePath!,
+                  height: 400.h,
+                  width: 1.sw,
+                  fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) =>
+                  const Icon(Icons.error, size: 50),
+                ),
+              ),
+            )
+                : isLocal
+                ? Lottie.asset(
+              imagePath!,
+              height: 400.h,
+              width: 1.sw,
+              fit: BoxFit.contain,
+              errorBuilder: (context, error, stackTrace) =>
+              const Icon(Icons.error, size: 50),
+            )
+                : Lottie.network(
+              imagePath!,
+              height: 400.h,
+              width: 1.sw,
+              fit: BoxFit.contain,
+              errorBuilder: (context, error, stackTrace) =>
+              const Icon(Icons.error, size: 50),
             ),
-          )
-              : isLocal
-              ? Lottie.asset(imagePath!,
-              height: 400, width: 800, fit: BoxFit.contain)
-              : Lottie.network(imagePath!,
-              height: 400, width: 800, fit: BoxFit.contain),
-          const SizedBox(height: 30),
-          Text(title,
-              style:
-              const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 20),
-          Text(
-            description,
-            style: TextStyle(fontSize: 16, color: Colors.grey[700]),
-            textAlign: TextAlign.center,
-          ),
-        ],
+            SizedBox(height: 30.h),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 24.sp,
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 20.h),
+            Text(
+              description,
+              style: TextStyle(
+                fontSize: 16.sp,
+                color: Colors.grey[700],
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -36,6 +36,7 @@ dependencies:
   chat_bubbles: ^1.7.0
   shimmer: ^3.0.0
   sms_autofill: ^2.4.1
+  flutter_screenutil: ^5.9.3
 
 dev_dependencies:
   flutter_test:

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:line_icons/line_icons.dart';
 import '../components/sideDrawer.dart';
 import '../consts.dart';
@@ -25,44 +26,60 @@ class _MyHomePageState extends State<MyHomePage> {
     const NotificationScreen(),
   ];
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
         centerTitle: true,
-        toolbarHeight: 65,
+        toolbarHeight: 65.h,
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1.0),
+          preferredSize: Size.fromHeight(1.h),
           child: Container(
-            height: 1.0,
+            height: 1.h,
             color: AppColors.dividerColor.withOpacity(0.5),
           ),
         ),
         leading: IconButton(
-          icon: Icon(CupertinoIcons.bars, size: 30, color: Colors.grey.shade800),
-          onPressed: () => _scaffoldKey.currentState?.openDrawer(),
+          icon: Icon(
+            CupertinoIcons.bars,
+            size: 30.sp,
+            color: Colors.grey.shade800,
+          ),
+          onPressed: () {
+            print('Drawer icon tapped - opening drawer');
+            _scaffoldKey.currentState?.openDrawer();
+          },
         ),
         actions: [
           Padding(
-            padding: const EdgeInsets.only(right: 16.0),
+            padding: EdgeInsets.only(right: 16.w),
             child: GestureDetector(
-              child: Icon(CupertinoIcons.profile_circled, size: 30, color: Colors.grey.shade800),
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ProfilePage()),
+              child: Icon(
+                CupertinoIcons.profile_circled,
+                size: 30.sp,
+                color: Colors.grey.shade800,
               ),
+              onTap: () {
+                print('Profile icon tapped - navigating to ProfilePage');
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ProfilePage()),
+                );
+              },
             ),
           ),
         ],
-        title: const Padding(
-          padding: EdgeInsets.all(20.0),
+        title: Padding(
+          padding: EdgeInsets.all(20.w),
           child: Image(
-            image: AssetImage('assets/logo.png'), // Replace with your logo file path
-            width: 110, // Adjust size as needed
-            height: 110,
+            image: const AssetImage('assets/logo.png'),
+            width: 110.w,
+            height: 110.h,
+            errorBuilder: (context, error, stackTrace) => Text(
+              'Logo',
+              style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold),
+            ),
           ),
         ),
       ),
@@ -71,7 +88,7 @@ class _MyHomePageState extends State<MyHomePage> {
           border: Border(
             top: BorderSide(
               color: AppColors.dividerColor.withOpacity(0.5),
-              width: 1.0,
+              width: 1.h,
             ),
           ),
         ),
@@ -79,14 +96,26 @@ class _MyHomePageState extends State<MyHomePage> {
           indicatorColor: AppColors.navbarPillColor,
           selectedIndex: _selectedIndex,
           elevation: 0,
-          destinations: const [
-            NavigationDestination(icon: Icon(LineIcons.home, color: Colors.black), label: 'Home'),
-            NavigationDestination(icon: Icon(LineIcons.bullhorn, color: Colors.black), label: 'Post Ads'),
-            NavigationDestination(icon: Icon(LineIcons.bell, color: Colors.black), label: 'Notifications'),
+          destinations: [
+            NavigationDestination(
+              icon: Icon(LineIcons.home, color: Colors.black, size: 24.sp),
+              label: 'Home',
+            ),
+            NavigationDestination(
+              icon: Icon(LineIcons.bullhorn, color: Colors.black, size: 24.sp),
+              label: 'Post Ads',
+            ),
+            NavigationDestination(
+              icon: Icon(LineIcons.bell, color: Colors.black, size: 24.sp),
+              label: 'Notifications',
+            ),
           ],
-          onDestinationSelected: (index) => setState(() {
-            _selectedIndex = index;
-          }),
+          onDestinationSelected: (index) {
+            print('Navigation item selected: $index');
+            setState(() {
+              _selectedIndex = index;
+            });
+          },
         ),
       ),
       drawer: SideDrawer(scaffoldKey: _scaffoldKey),

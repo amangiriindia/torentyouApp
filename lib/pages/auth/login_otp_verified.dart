@@ -4,6 +4,7 @@ import 'package:lottie/lottie.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../../constant/user_constant.dart';
 import '../../consts.dart';
 import '../../service/api_service.dart';
 import '../../service/auth_service.dart';
@@ -73,33 +74,7 @@ class _OTPScreenState extends State<OTPScreen> {
     _startTimer();
   }
 
-  Future<void> _checkUserProfileAndNavigate() async {
-    try {
-      // Get user profile to check if name is null or empty
-      final profileResponse = await UserService.getUserProfile(userId: widget.userId);
 
-      if (profileResponse['success']) {
-        final userData = profileResponse['data']['data'];
-        final String? userName = userData['name'];
-
-        // Check if name is null or empty
-        if (userName == null || userName.trim().isEmpty) {
-          // Show profile completion popup
-          _showProfileCompletionDialog();
-        } else {
-          // Navigate to main screen directly
-          _navigateToMainScreen();
-        }
-      } else {
-        // If profile fetch fails, show profile completion dialog as fallback
-        _showProfileCompletionDialog();
-      }
-    } catch (e) {
-      print('Error checking profile: $e');
-      // Show profile completion dialog as fallback
-      _showProfileCompletionDialog();
-    }
-  }
 
   void _showProfileCompletionDialog() {
     final TextEditingController nameController = TextEditingController();
@@ -226,42 +201,115 @@ class _OTPScreenState extends State<OTPScreen> {
     );
   }
 
+  // Future<void> _verifyOtp() async {
+  //   setState(() {
+  //     _isLoading = true;
+  //   });
+  //
+  //   final enteredOtp = _otpController.text;
+  //
+  //   if (enteredOtp.length != 6) {
+  //     Fluttertoast.showToast(
+  //       msg: "Please enter a valid 6-digit OTP",
+  //       backgroundColor: Colors.red,
+  //       textColor: Colors.white,
+  //     );
+  //     setState(() {
+  //       _isLoading = false;
+  //     });
+  //     return;
+  //   }
+  //
+  //   final isVerified = await _apiService.verifyOtp(widget.userId, widget.contact, enteredOtp);
+  //
+  //   setState(() {
+  //     _isLoading = false;
+  //   });
+  //
+  //   if (isVerified) {
+  //     // After OTP verification, check profile and navigate accordingly
+  //     _checkUserProfileAndNavigate();
+  //   } else {
+  //     Fluttertoast.showToast(
+  //       msg: "Invalid OTP",
+  //       backgroundColor: Colors.red,
+  //       textColor: Colors.white,
+  //     );
+  //   }
+  // }
+
   Future<void> _verifyOtp() async {
     setState(() {
       _isLoading = true;
     });
 
     final enteredOtp = _otpController.text;
-
     if (enteredOtp.length != 6) {
       Fluttertoast.showToast(
         msg: "Please enter a valid 6-digit OTP",
         backgroundColor: Colors.red,
         textColor: Colors.white,
       );
-      setState(() {
-        _isLoading = false;
-      });
+      setState(() { _isLoading = false; });
       return;
     }
 
-    final isVerified = await _apiService.verifyOtp(widget.userId, widget.contact, enteredOtp);
+    try {
+      final response = await http.post(
+        Uri.parse('${AppConstant.API_URL}api/v1/seller/login-otp-verfied'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'id': widget.userId,
+          'contact': widget.contact,
+          'otp': enteredOtp,
+        }),
+      );
+    print( response.statusCode);
+    print(response.body);
+      final responseData = jsonDecode(response.body);
+      final success = response.statusCode == 200 && responseData['success'] == true;
 
-    setState(() {
-      _isLoading = false;
-    });
+      setState(() { _isLoading = false; });
 
-    if (isVerified) {
-      // After OTP verification, check profile and navigate accordingly
-      _checkUserProfileAndNavigate();
-    } else {
+      if (!success) {
+        Fluttertoast.showToast(
+          msg: responseData['message'] ?? "Invalid OTP",
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+        );
+        return;
+      }
+
+      // Save user data
+      await UserConstant.saveUserData(responseData['data']);
+
       Fluttertoast.showToast(
-        msg: "Invalid OTP",
+        msg: "OTP Verified Successfully",
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+      );
+
+      // Inspect the name field from the OTP response
+      final String? userName = responseData['data']['name'] as String?;
+
+      if (userName == null || userName.trim().isEmpty) {
+        // If name is missing or empty, prompt profile completion
+        _showProfileCompletionDialog();
+      } else {
+        // Otherwise go straight to the main screen
+        _navigateToMainScreen();
+      }
+
+    } catch (e) {
+      setState(() { _isLoading = false; });
+      Fluttertoast.showToast(
+        msg: "Error verifying OTP",
         backgroundColor: Colors.red,
         textColor: Colors.white,
       );
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
