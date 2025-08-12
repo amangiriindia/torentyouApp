@@ -1,0 +1,5 @@
+---
+triple:          'armv7-apple-darwin'
+binary-path:     './Pods/PhonePePayment/PhonePePayment.xcframework/ios-arm64_armv7/PhonePePayment.framework/PhonePePayment'
+relocations:     []
+...
