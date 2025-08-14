@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:try_app/pages/search_screen.dart';
 import 'package:try_app/pages/splashScreen.dart';
 import 'constant/user_constant.dart';
 import 'firebase_options.dart';
@@ -30,7 +29,7 @@ class MyApp extends StatelessWidget {
       builder: (context, child) {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
-          home: SearchScreen(),
+          home: SplashScreen(),
         );
       },
     );
