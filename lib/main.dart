@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:try_app/pages/splashScreen.dart';
+import 'package:try_app/pages/onboarding/splashScreen.dart';
 import 'constant/user_constant.dart';
 import 'firebase_options.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';

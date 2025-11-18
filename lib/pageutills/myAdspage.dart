@@ -4,7 +4,7 @@ import 'package:lottie/lottie.dart';
 import '../components/no_data_found.dart';
 import '../service/api_service.dart';
 import '../consts.dart';
-import '../pages/Postadswithnavbar.dart';
+import '../pages/main/Postadswithnavbar.dart';
 
 class MyAdsPage extends StatefulWidget {
   const MyAdsPage({super.key});

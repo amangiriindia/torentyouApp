@@ -26,8 +26,17 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>This app needs your location to provide better services nearby.</string>
+<key>NSPhotoLibraryUsageDescription</key>
+<string>This app requires access to your photo library so you can upload and share photos for rental service</string>
+
+<key>NSCameraUsageDescription</key>
+<string>This app requires access to your camera to allow you to take photos for uploading product </string>
+
+
+<key>NSLocationWhenInUseUsageDescription</key>
+<string>We use your location to show products available in your area and nearby stores. For example, we display items that can be delivered to your current location. Additionally, when you upload a product for rent, we detect its current location to help others find it easily.</string>
+
+
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>

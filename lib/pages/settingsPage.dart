@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../constant/user_constant.dart';
 import '../consts.dart';
-import 'splashScreen.dart';
+import 'onboarding/splashScreen.dart';
 
 class SettingsPage extends StatefulWidget {
   final String heading;

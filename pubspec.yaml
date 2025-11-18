@@ -3,7 +3,7 @@ name: try_app
 description: "A new Flutter project."
 
 publish_to: 'none'
-version: 1.0.0+3
+version: 1.0.1+12
 
 environment:
   sdk: '>=3.4.4 <4.0.0'
@@ -37,6 +37,8 @@ dependencies:
   shimmer: ^3.0.0
   sms_autofill: ^2.4.1
   flutter_screenutil: ^5.9.3
+  url_launcher: ^6.3.2
+
 
 dev_dependencies:
   flutter_test:

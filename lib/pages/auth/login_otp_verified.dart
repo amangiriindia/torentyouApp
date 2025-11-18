@@ -8,7 +8,7 @@ import '../../constant/user_constant.dart';
 import '../../consts.dart';
 import '../../service/api_service.dart';
 import '../../service/auth_service.dart';
-import '../mainPage.dart';
+import '../base/mainPage.dart';
 
 class OTPScreen extends StatefulWidget {
   final String contact;
