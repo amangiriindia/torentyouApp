@@ -11,7 +11,7 @@ class PhonePeConfig {
   static const int prodApiKeyIndex = 1;
   static const String prodHostUrl = "https://api.phonepe.com/apis/hermes";
 
-  static const bool isProduction = false;
+  static const bool isProduction = true;
 
   static String get merchantId => isProduction ? prodMerchantId : testMerchantId;
   static String get apiKey => isProduction ? prodApiKey : testApiKey;

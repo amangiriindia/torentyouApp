@@ -12,12 +12,10 @@ class PaymentService {
   /// Initializes the PhonePe SDK
   static Future<bool> initializePhonePe() async {
     try {
-
-
       bool result = await PhonePePaymentSdk.init(
-        'SANDBOX',
-        'KUAT',
-        "KUAT",
+        'PRODUCTION',
+        'com.amzsoft.torentyou',
+        "M22Z0YGPLTMPG",
         true, // Enable logging
       );
 
@@ -45,9 +43,11 @@ class PaymentService {
   }
 
   /// Checks transaction status via API
-  static Future<Map<String, dynamic>> checkTransactionStatus(String transactionId) async {
+  static Future<Map<String, dynamic>> checkTransactionStatus(
+      String transactionId) async {
     try {
-      final endpoint = "/pg/v1/status/${PhonePeConfig.merchantId}/$transactionId";
+      final endpoint =
+          "/pg/v1/status/${PhonePeConfig.merchantId}/$transactionId";
       final checksum = generateChecksum("", endpoint);
 
       final response = await http.get(
@@ -77,7 +77,10 @@ class PaymentService {
       if (!_isInitialized) {
         final initResult = await initializePhonePe();
         if (!initResult) {
-          return {'success': false, 'error': 'PhonePe SDK initialization failed'};
+          return {
+            'success': false,
+            'error': 'PhonePe SDK initialization failed'
+          };
         }
       }
 
@@ -94,29 +97,23 @@ class PaymentService {
       //   "paymentInstrument": {"type": "PAY_PAGE"}
       // };
 
+      final paymentRequest = {
+        "merchantId": PhonePeConfig.prodMerchantId,
+        "merchantTransactionId": transactionId,
+        "merchantUserId": userId,
+        "amount": amountInPaise,
+        "callbackUrl": EnvConfig.CALLBACK_URL,
+        "mobileNumber": mobileNumber ?? "9999999999",
+        "paymentInstrument": {"type": "PAY_PAGE"}
+      };
 
-
-   final  paymentRequest = {
-     "merchantId": PhonePeConfig.testMerchantId,
-     "merchantTransactionId": transactionId,
-     "merchantUserId": userId,
-     "amount": amountInPaise,
-     "callbackUrl": EnvConfig.CALLBACK_URL,
-     "mobileNumber": mobileNumber ?? "9999999999",
-     "paymentInstrument": {
-       "type": "PAY_PAGE"
-     }
-   };
-
-
-
-    final payloadJson = jsonEncode(paymentRequest);
+      final payloadJson = jsonEncode(paymentRequest);
       final payload = base64.encode(utf8.encode(payloadJson));
 
-     // print("Payload JSON: $payloadJson");
+      // print("Payload JSON: $payloadJson");
       print("Base64 Payload: $payload");
 
-     // final endpoint = "/pg/v1/pay"+"${PhonePeConfig.testApiKey}"+"###"+"${PhonePeConfig.testApiKeyIndex}";
+      // final endpoint = "/pg/v1/pay"+"${PhonePeConfig.testApiKey}"+"###"+"${PhonePeConfig.testApiKeyIndex}";
       final checksum = generateChecksum(payload, "/pg/v1/pay");
       print("checksome $checksum");
 
@@ -131,8 +128,7 @@ class PaymentService {
           payload, //base64encodeed value
           "",
           checksum,
-          ""
-      );
+          "");
 
       print("Payment response: $response");
 
@@ -142,7 +138,8 @@ class PaymentService {
           'success': statusResponse['success'] == true,
           'transactionId': transactionId,
           'response': statusResponse,
-          'error': statusResponse['message'] ?? 'Transaction status check failed',
+          'error':
+              statusResponse['message'] ?? 'Transaction status check failed',
         };
       }
 

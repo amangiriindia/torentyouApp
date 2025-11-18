@@ -68,7 +68,7 @@ const SizedBox(height: 15),
 
 // Subtitle
 const Text(
-  'Please log in to access all features and connect with others.',
+  'Please log in to access all feature.',
   style: TextStyle(
     fontSize: 16,
     color: Colors.grey,
@@ -76,7 +76,6 @@ const Text(
   ),
   textAlign: TextAlign.center,
 ),
-
 
             const SizedBox(height: 50),
 

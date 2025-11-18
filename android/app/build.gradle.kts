@@ -39,8 +39,8 @@ android {
         applicationId = "com.amzsoft.torentyou"
         minSdk = 21
         targetSdk = 35
-        versionCode = 8
-        versionName = "1.0.8"
+        versionCode = 9
+        versionName = "1.0.9"
         multiDexEnabled = true
     }
 
