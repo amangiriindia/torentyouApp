@@ -1171,8 +1171,8 @@ class _SearchScreenState extends State<SearchScreen> {
     final url = '${AppConstant.API_URL}api/v1/subcategory/single-subcategory/$categoryId';
     try {
       final response = await http.get(Uri.parse(url));
-      print('Subcategory API Response: ${response.body}');
-      print('Status Code: ${response.statusCode}');
+      print(' ${response.body}');
+      print(' ${response.statusCode}');
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);

@@ -22,7 +22,7 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace = "com.amzsoft.torentyou"
-    compileSdk = 35
+    compileSdk = 36
     ndkVersion = "27.0.12077973"  // Updated to the required version
 
     compileOptions {
@@ -37,10 +37,10 @@ android {
 
     defaultConfig {
         applicationId = "com.amzsoft.torentyou"
-        minSdk = 21
-        targetSdk = 35
-        versionCode = 9
-        versionName = "1.0.9"
+        minSdk = flutter.minSdkVersion
+        targetSdk = 36
+        versionCode = 10
+        versionName = "2.0.0"
         multiDexEnabled = true
     }
 
