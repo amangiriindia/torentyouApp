@@ -3,6 +3,7 @@ import 'package:lottie/lottie.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:try_app/pages/base/mainPage.dart';
 import '../../components/Button.dart';
 import '../../consts.dart';
 import '../auth/loginPage.dart';
@@ -73,7 +74,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
             children: [
               _buildOnboardingPage(
                 'Welcome To Rent You!',
-                'assets/images/onboarding1.jpg',
+                'assets/images/onboarding1.png',
                 'Your gateway to hassle-free rentals.',
                 isLocal: true,
                 isImage: true,
@@ -116,7 +117,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const LoginPage(),
+                          builder: (context) => const MyHomePage(),
                         ),
                       );
                     },

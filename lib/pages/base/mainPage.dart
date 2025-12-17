@@ -25,8 +25,8 @@ class _MyHomePageState extends State<MyHomePage> {
   final List<Widget> _pages = [
     const HomePage(),
     const PostAdsPage(),
-    NotificationsPage(),
-   // ChatListScreen(),
+   // NotificationsPage(),
+    ChatListScreen(),
   ];
 
   @override
@@ -111,10 +111,10 @@ if (UserConstant.USER_ID != null && UserConstant.USER_ID != 0)
               label: 'Post Ads',
             ),
             NavigationDestination(
-              icon: Icon(Icons.notification_add,
+              icon: Icon(Icons.chat,
                   color: Colors.black, size: 24.sp),
-              selectedIcon: Icon(Icons.notification_add, color: Colors.blue, size: 24.sp),
-              label: 'Notification',
+              selectedIcon: Icon(Icons.chat, color: Colors.blue, size: 24.sp),
+              label: 'Chats',
             ),
           ],
           onDestinationSelected: (index) {

@@ -1,18 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:try_app/pages/main/without_login_screen.dart';
 import '../../components/no_data_found.dart';
 import '../../constant/user_constant.dart';
 import '../../consts.dart';
 import '../../service/api_service.dart';
 import 'chat_screen.dart'; // Your chat page import
 
-class ChatListScreen extends StatefulWidget {
+class ChatListScreen extends StatelessWidget {
   const ChatListScreen({super.key});
 
   @override
-  State<ChatListScreen> createState() => _ChatListScreenState();
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: UserConstant.USER_ID != null && UserConstant.USER_ID != 0
+            ? const ChatListContent()
+            : const WithoutLoginWidget(),
+      ),
+    );
+  }
 }
 
-class _ChatListScreenState extends State<ChatListScreen> {
+class ChatListContent extends StatefulWidget {
+  const ChatListContent({super.key});
+
+  @override
+  State<ChatListContent> createState() => _ChatListContentState();
+}
+
+class _ChatListContentState extends State<ChatListContent> {
   int userId = 0;
   String senderEmail = '';
   List<dynamic> chatRooms = [];

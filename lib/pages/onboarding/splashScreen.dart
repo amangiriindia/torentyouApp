@@ -34,7 +34,7 @@ class _SplashScreenState extends State<SplashScreen> {
         // Navigate to OnBoardingPage if userId is null
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
-            builder: (context) => MyHomePage(),
+            builder: (context) => OnBoardingScreen(onDone: () {  },),
             
             
             

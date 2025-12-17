@@ -275,7 +275,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
 
                         _ProfileOptionItem(
-                          icon: Icons.description,
+                          icon: Icons.assignment_return,
                           text: 'Return & Refund',
                           onTap: () {
                             Navigator.push(
